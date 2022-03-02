@@ -1,2 +1,2 @@
-import multiviewdata.pytorchdatasets
+import multiviewdata.torchdatasets
 import multiviewdata.simulated

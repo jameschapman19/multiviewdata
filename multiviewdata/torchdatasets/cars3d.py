@@ -1,3 +1,5 @@
+import os
+
 from torch.utils.data import Dataset
 import glob
 import PIL
@@ -5,20 +7,57 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io as sio
 import torch
+from torchvision.datasets.utils import download_and_extract_archive
 
 
 class Cars_Dataset(Dataset):
-    def __init__(self):
-        v1, v2 = get_cars3d()
+    def __init__(self, root, download=False, train=True):
+        self.resources=["http://www.scottreed.info/files/nips2015-analogy-data.tar.gz"]
+        """
         self.v1 = torch.tensor(v1).float()
         self.v2 = torch.tensor(v2).float()
         self.data_len = v1.shape[0]
+        """
+        self.root=root
+        if download:
+            self.download()
+
+        if not self._check_exists():
+            raise RuntimeError('Dataset not found.' +
+                               ' You can use download=True to download it')
+        if train:
+            pass
+        else:
+            pass
+
+    @property
+    def raw_folder(self) -> str:
+        return os.path.join(self.root, self.__class__.__name__, 'raw')
 
     def __getitem__(self, index):
         return {"views": (self.v1[index], self.v2[index]), "index": index}
 
     def __len__(self):
         return self.data_len
+
+    def _check_exists(self) -> bool:
+        return os.path.exists(os.path.join(self.raw_folder,
+                                            "nips2015-analogy-data.tar.gz"))
+
+    def download(self) -> None:
+        """Download the data if it doesn't exist in processed_folder already."""
+
+        if self._check_exists():
+            return
+
+        os.makedirs(self.raw_folder, exist_ok=True)
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
+        # download files
+        for url in self.resources:
+            filename = url.rpartition('/')[2]
+            download_and_extract_archive(url, download_root=self.raw_folder, filename=filename)
+        print('Done!')
 
 
 # Shuffle the private information

@@ -4,7 +4,8 @@ from torch.utils.data import Dataset
 
 
 class WIW_Dataset(Dataset):
-    def __init__(self, feats=None, lng_dict=None, split="train"):
+    def __init__(self, root, feats=None, lng_dict=None, split="train"):
+        self.root = root
         # Dataset parameters
         if lng_dict is None:
             lng_dict = {
