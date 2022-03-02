@@ -16,7 +16,7 @@ class Split_MNIST_Dataset(Dataset):
     """
 
     def __init__(
-        self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True
+        self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True, download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -25,7 +25,7 @@ class Split_MNIST_Dataset(Dataset):
         :param flatten: whether to flatten the data into array or use 2d images
         """
 
-        self.dataset = load_mnist(mnist_type, train, root)
+        self.dataset = load_mnist(mnist_type, train, root, download)
         self.flatten = flatten
 
     def __len__(self):
@@ -49,7 +49,7 @@ class Noisy_MNIST_Dataset(Dataset):
     """
 
     def __init__(
-            self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True
+            self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True, download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -57,7 +57,7 @@ class Noisy_MNIST_Dataset(Dataset):
         :param train: whether this is train or test
         :param flatten: whether to flatten the data into array or use 2d images
         """
-        self.dataset = load_mnist(mnist_type, train, root)
+        self.dataset = load_mnist(mnist_type, train, root, download)
         self.a_transform = torchvision.transforms.RandomRotation((-45, 45))
         self.b_transform = transforms.Compose(
             [
@@ -99,7 +99,7 @@ class Tangled_MNIST_Dataset(Dataset):
     """
 
     def __init__(
-            self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True
+            self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True, download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -107,7 +107,7 @@ class Tangled_MNIST_Dataset(Dataset):
         :param train: whether this is train or test
         :param flatten: whether to flatten the data into array or use 2d images
         """
-        self.dataset = load_mnist(mnist_type, train, root)
+        self.dataset = load_mnist(mnist_type, train, root, download)
         self.transform = torchvision.transforms.RandomRotation((-45, 45))
         self.targets = self.dataset.targets
         self.filtered_classes = []
@@ -138,13 +138,12 @@ def _add_mnist_noise(x):
     return x
 
 
-def load_mnist(mnist_type, train, root):
+def load_mnist(mnist_type, train, root, download):
     if mnist_type == "MNIST":
-        dataset = load_mnist(mnist_type, train)
-        datasets.MNIST(
+        dataset=datasets.MNIST(
             root,
             train=train,
-            download=True,
+            download=download,
             transform=torchvision.transforms.Compose(
                 [torchvision.transforms.ToTensor()]
             ),
@@ -154,7 +153,7 @@ def load_mnist(mnist_type, train, root):
         dataset = datasets.FashionMNIST(
             root,
             train=train,
-            download=True,
+            download=download,
             transform=torchvision.transforms.Compose(
                 [torchvision.transforms.ToTensor()]
             ),
@@ -163,7 +162,7 @@ def load_mnist(mnist_type, train, root):
         dataset = datasets.KMNIST(
             root,
             train=train,
-            download=True,
+            download=download,
             transform=torchvision.transforms.Compose(
                 [
                     torchvision.transforms.ToTensor(),
