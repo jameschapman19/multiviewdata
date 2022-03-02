@@ -1,4 +1,3 @@
-import numpy as np
 from torch.utils.data import Dataset
 
 from multiviewdata.utils.xrmb import load_xrmb
@@ -24,4 +23,4 @@ class XRMB_Dataset(Dataset):
         return len(self.view_1)
 
     def __getitem__(self, idx):
-        return (self.view_1[idx], self.view_2[idx]), np.zeros(1)
+        return {"views": (self.view_1[idx], self.view_2[idx])}
