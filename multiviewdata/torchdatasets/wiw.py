@@ -1,15 +1,22 @@
+import math
 import os
+import zipfile
 
 import h5py
 import numpy as np
 from torch.utils.data import Dataset
-from torchvision.datasets.utils import download_and_extract_archive
-import math
+
 
 class WIW_Dataset(Dataset):
-    def __init__(self, root, feats=None, lng_dict=None, split="train"):
+    def __init__(self, root, feats=None, partials=None, lng_dict=None, split="train", download=True):
+        self.resources = [("https://mega.nz/file/Gc0kHBTA#CYpHo_Vs2j1BIML2rlBhxFtOzzAzpkhSIeYT3rE93Go", "wiw_data.zip")]
         self.root = root
-        self.resources = [("https://mega.nz/#!eV0STDTR!w6Xg248RQdzL28VOmoqsFLidJqrlSZKx7f8AGqfA204", "wiw_data.zip")]
+        if download:
+            self.download()
+
+        if not self._check_exists():
+            raise RuntimeError('Dataset not found.' +
+                               ' You can use download=True to download it')
         # Dataset parameters
         if lng_dict is None:
             lng_dict = {
@@ -19,13 +26,14 @@ class WIW_Dataset(Dataset):
                 "ru": "russian",
             }
         if feats is None:
-            feats = ["eng", "ru", "vis"]
-        self.feats = feats
+            self.feats = ["eng", "ru"]
+        if partials is None:
+            self.partials = ['vis']
         self.lng_dict = lng_dict
         self.folder = self.feats[0] + "_" + self.feats[1]
-        self.dname = "wiw_" + self.folder + "_img_pca_300_wv_splitted"  # Dataset Name
+        self.dname = "/wiw_" + self.folder + "_img_pca_300_wv_splitted"  # Dataset Name
         self.dataset = h5py.File(
-            "C:/Users/chapm/PycharmProjects/PartialBarlowTwins/data/wiw_data/"
+            os.path.join(self.raw_folder, "wiw_data/")
             + self.folder
             + "/"
             + self.dname
@@ -42,6 +50,10 @@ class WIW_Dataset(Dataset):
         return os.path.exists(os.path.join(self.raw_folder,
                                            "wiw_data"))
 
+    def _check_raw_exists(self) -> bool:
+        return os.path.exists(os.path.join(self.raw_folder,
+                                           "wiw_data.zip"))
+
     def __len__(self):
         return len(self.dataset)
 
@@ -50,23 +62,149 @@ class WIW_Dataset(Dataset):
             self.dataset["%06d" % idx][feat + "_feats"][()].astype(np.float32)
             for feat in self.feats
         ]
-        return {"views": tuple(views[:-1]), "partials": views[-1]}
+        partials = [
+            self.dataset["%06d" % idx][partial + "_feats"][()].astype(np.float32)
+            for partial in self.partials
+        ]
+        return {"views": views, "partials": partials}
 
     def download(self) -> None:
         """Download the data if it doesn't exist in processed_folder already."""
 
+        if not self._check_raw_exists():
+            os.makedirs(self.raw_folder, exist_ok=True)
+            print(
+                f"Download raw zip file from https://mega.nz/file/eV0STDTR#w6Xg248RQdzL28VOmoqsFLidJqrlSZKx7f8AGqfA204"
+                f"and put it in {self.raw_folder}. This is manual because the python api is extremely slow.")
         if self._check_exists():
             return
-
-        os.makedirs(self.raw_folder, exist_ok=True)
-        import ssl
-        ssl._create_default_https_context = ssl._create_unverified_context
-        # download files
-        for url, filename in self.resources:
-            download_and_extract_archive(url, download_root=self.raw_folder, filename=filename)
-
-
+        with zipfile.ZipFile(os.path.join(self.raw_folder, "wiw_data.zip")) as z:
+            z.extractall(self.raw_folder)
+        print('Processing...')
+        self.process()
         print('Done!')
+
+    def process(self):
+        for languages in [("eng", "ger"), ("eng", "it"), ("eng", "ru")]:
+            # Split data
+            lng1, lng2 = languages
+            dataset_name = (os.path.join(self.raw_folder,
+                                         "wiw_data/")
+                            + lng1
+                            + "_"
+                            + lng2
+                            + "/wiw_"
+                            + lng1
+                            + "_"
+                            + lng2
+                            + "_img_pca_300_wv.h5"
+                            )
+            dataname = h5py.File(dataset_name, "r")
+            dataset_split = dataname["train"]
+
+            samples_size = count_split_size(dataset_split)
+            train_size = int(math.ceil(0.7 * samples_size))
+            val_size = int(math.ceil(0.15 * samples_size))
+            test_size = samples_size - (train_size + val_size)
+            splits_size = [train_size, val_size, test_size]
+
+            train_data = []
+            val_data = []
+            test_data = []
+
+            for idx in range(samples_size):
+                tup = dataset_split["%06d" % idx]
+                lng1_feats = tup[lng1 + "_feats"][()]
+                lng2_feats = tup[lng2 + "_feats"][()]
+                vis_feats = tup["vis_feats"][()]
+                lng1_desc = tup[lng1 + "_descriptions_feats"][()][0]  # .value[0]
+                lng2_desc = tup[lng2 + "_descriptions_feats"][()][0]  # .value[0]
+
+                if idx < train_size:
+                    train_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
+                elif idx < train_size + val_size:
+                    val_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
+                else:
+                    test_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
+
+            # Write data
+            fname = dataset_name[:-3] + "_splitted"
+            h5output = h5py.File(fname + ".h5", "w")
+            # The HDF5 file will contain a top-level group for each split
+            train = h5output.create_group("train")
+            val = h5output.create_group("val")
+            test = h5output.create_group("test")
+            splits = ["train", "val", "test"]
+            split_dims = []
+            img_dims = train_data[0][2].shape[0]
+            txt_dims = [train_data[0][0].shape[0], train_data[0][1].shape[0]]
+            data_idx = 0
+            for split in splits:
+                dims = splits_size[data_idx]
+                textual_features = []
+                data_dim_idx = 0
+                for dim_idx in range(dims):
+                    if split == "train":
+                        container = train.create_group("%06d" % data_dim_idx)
+                    elif split == "val":
+                        container = val.create_group("%06d" % data_dim_idx)
+                    else:
+                        container = test.create_group("%06d" % data_dim_idx)
+                    lng_idx = 0
+                    if split == "train":
+                        for j, lng in enumerate(languages):
+                            text_data = container.create_dataset(
+                                lng + "_feats", (txt_dims[j],), dtype="float32"
+                            )
+                            text_data[:] = train_data[dim_idx][j]
+                            text_data = container.create_dataset(
+                                lng + "_descriptions_feats",
+                                (1,),
+                                dtype=h5py.special_dtype(vlen=str),
+                            )
+                            text_data[:] = train_data[dim_idx][3 + j]
+                            lng_idx += 1
+                        image_data = container.create_dataset(
+                            "vis_feats", (img_dims,), dtype="float32"
+                        )
+                        image_data[:] = train_data[dim_idx][2]
+                    elif split == "val":
+                        for j, lng in enumerate(languages):
+                            text_data = container.create_dataset(
+                                lng + "_feats", (txt_dims[j],), dtype="float32"
+                            )
+                            text_data[:] = val_data[dim_idx][j]
+                            text_data = container.create_dataset(
+                                lng + "_descriptions_feats",
+                                (1,),
+                                dtype=h5py.special_dtype(vlen=str),
+                            )
+                            text_data[:] = val_data[dim_idx][3 + j]
+                            lng_idx += 1
+                        image_data = container.create_dataset(
+                            "vis_feats", (img_dims,), dtype="float32"
+                        )
+                        image_data[:] = val_data[dim_idx][2]
+                    else:
+                        for j, lng in enumerate(languages):
+                            text_data = container.create_dataset(
+                                lng + "_feats", (txt_dims[j],), dtype="float32"
+                            )
+                            text_data[:] = test_data[dim_idx][j]
+                            text_data = container.create_dataset(
+                                lng + "_descriptions_feats",
+                                (1,),
+                                dtype=h5py.special_dtype(vlen=str),
+                            )
+                            text_data[:] = test_data[dim_idx][3 + j]
+                            lng_idx += 1
+                        image_data = container.create_dataset(
+                            "vis_feats", (img_dims,), dtype="float32"
+                        )
+                        image_data[:] = test_data[dim_idx][2]
+                    data_dim_idx += 1
+                data_idx += 1
+            h5output.close()
 
 
 def count_split_size(dataset_split):
@@ -74,126 +212,3 @@ def count_split_size(dataset_split):
     for _ in dataset_split:
         split_size += 1
     return split_size
-
-
-for languages in [("eng", "ger"), ("eng", "it"), ("eng", "ru")]:
-    # Split data
-    lng1, lng2 = languages
-    dataset_name = (
-        "C:/Users/chapm/PycharmProjects/PartialBarlowTwins"
-        "/data/wiw_data/"
-        + lng1
-        + "_"
-        + lng2
-        + "/wiw_"
-        + lng1
-        + "_"
-        + lng2
-        + "_img_pca_300_wv.h5"
-    )
-    dataname = h5py.File(dataset_name, "r")
-    dataset_split = dataname["train"]
-
-    samples_size = count_split_size(dataset_split)
-    train_size = int(math.ceil(0.7 * samples_size))
-    val_size = int(math.ceil(0.15 * samples_size))
-    test_size = samples_size - (train_size + val_size)
-    splits_size = [train_size, val_size, test_size]
-
-    train_data = []
-    val_data = []
-    test_data = []
-
-    for idx in range(samples_size):
-        tup = dataset_split["%06d" % idx]
-        lng1_feats = tup[lng1 + "_feats"][()]
-        lng2_feats = tup[lng2 + "_feats"][()]
-        vis_feats = tup["vis_feats"][()]
-        lng1_desc = tup[lng1 + "_descriptions_feats"][()][0]  # .value[0]
-        lng2_desc = tup[lng2 + "_descriptions_feats"][()][0]  # .value[0]
-
-        if idx < train_size:
-            train_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
-        elif idx < train_size + val_size:
-            val_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
-        else:
-            test_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
-
-    # Write data
-    fname = dataset_name[:-3] + "_splitted"
-    h5output = h5py.File(fname + ".h5", "w")
-    # The HDF5 file will contain a top-level group for each split
-    train = h5output.create_group("train")
-    val = h5output.create_group("val")
-    test = h5output.create_group("test")
-    splits = ["train", "val", "test"]
-    split_dims = []
-    img_dims = train_data[0][2].shape[0]
-    txt_dims = [train_data[0][0].shape[0], train_data[0][1].shape[0]]
-    data_idx = 0
-    for split in splits:
-        dims = splits_size[data_idx]
-        textual_features = []
-        data_dim_idx = 0
-        for dim_idx in range(dims):
-            if split == "train":
-                container = train.create_group("%06d" % data_dim_idx)
-            elif split == "val":
-                container = val.create_group("%06d" % data_dim_idx)
-            else:
-                container = test.create_group("%06d" % data_dim_idx)
-            lng_idx = 0
-            if split == "train":
-                for j, lng in enumerate(languages):
-                    text_data = container.create_dataset(
-                        lng + "_feats", (txt_dims[j],), dtype="float32"
-                    )
-                    text_data[:] = train_data[dim_idx][j]
-                    text_data = container.create_dataset(
-                        lng + "_descriptions_feats",
-                        (1,),
-                        dtype=h5py.special_dtype(vlen=str),
-                    )
-                    text_data[:] = train_data[dim_idx][3 + j]
-                    lng_idx += 1
-                image_data = container.create_dataset(
-                    "vis_feats", (img_dims,), dtype="float32"
-                )
-                image_data[:] = train_data[dim_idx][2]
-            elif split == "val":
-                for j, lng in enumerate(languages):
-                    text_data = container.create_dataset(
-                        lng + "_feats", (txt_dims[j],), dtype="float32"
-                    )
-                    text_data[:] = val_data[dim_idx][j]
-                    text_data = container.create_dataset(
-                        lng + "_descriptions_feats",
-                        (1,),
-                        dtype=h5py.special_dtype(vlen=str),
-                    )
-                    text_data[:] = val_data[dim_idx][3 + j]
-                    lng_idx += 1
-                image_data = container.create_dataset(
-                    "vis_feats", (img_dims,), dtype="float32"
-                )
-                image_data[:] = val_data[dim_idx][2]
-            else:
-                for j, lng in enumerate(languages):
-                    text_data = container.create_dataset(
-                        lng + "_feats", (txt_dims[j],), dtype="float32"
-                    )
-                    text_data[:] = test_data[dim_idx][j]
-                    text_data = container.create_dataset(
-                        lng + "_descriptions_feats",
-                        (1,),
-                        dtype=h5py.special_dtype(vlen=str),
-                    )
-                    text_data[:] = test_data[dim_idx][3 + j]
-                    lng_idx += 1
-                image_data = container.create_dataset(
-                    "vis_feats", (img_dims,), dtype="float32"
-                )
-                image_data[:] = test_data[dim_idx][2]
-            data_dim_idx += 1
-        data_idx += 1
-    h5output.close()
