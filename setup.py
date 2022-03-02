@@ -8,7 +8,7 @@ with open("./requirements.txt", "r") as f:
 
 setup(
     name="multiviewdata",
-    version="0",
+    version="0.0.0",
     packages=find_packages(),
     url="",
     license="",
