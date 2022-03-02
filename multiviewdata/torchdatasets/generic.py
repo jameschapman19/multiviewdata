@@ -20,4 +20,5 @@ class Generic_Dataset(Dataset):
 
     def __getitem__(self, idx):
         views = [view[idx].astype(np.float32) for view in self.views]
-        return {"views": views}
+        return {"views": views,
+                "index": idx}

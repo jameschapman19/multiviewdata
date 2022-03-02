@@ -66,7 +66,9 @@ class WIW_Dataset(Dataset):
             self.dataset["%06d" % idx][partial + "_feats"][()].astype(np.float32)
             for partial in self.partials
         ]
-        return {"views": views, "partials": partials}
+        return {"views": views,
+                "partials": partials,
+                "index": idx}
 
     def download(self) -> None:
         """Download the data if it doesn't exist in processed_folder already."""

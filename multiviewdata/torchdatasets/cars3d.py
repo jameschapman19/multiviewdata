@@ -31,7 +31,8 @@ class Cars_Dataset(Dataset):
         return os.path.join(self.root, self.__class__.__name__, 'raw')
 
     def __getitem__(self, index):
-        return {"views": (self.v1[index], self.v2[index]), "index": index}
+        return {"views": (self.v1[index], self.v2[index]),
+                "index": index}
 
     def __len__(self):
         return self.v1.shape[0]

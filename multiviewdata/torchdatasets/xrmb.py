@@ -36,7 +36,8 @@ class XRMB_Dataset(Dataset):
         return len(self.view_1)
 
     def __getitem__(self, idx):
-        return {"views": (self.view_1[idx], self.view_2[idx])}
+        return {"views": (self.view_1[idx], self.view_2[idx]),
+                "index": idx}
 
     def _check_exists(self) -> bool:
         return (os.path.exists(os.path.join(self.raw_folder,

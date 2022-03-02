@@ -38,7 +38,9 @@ class Split_MNIST_Dataset(Dataset):
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
-        return {"views": (x_a, x_b), "label": label}
+        return {"views": (x_a, x_b),
+                "label": label,
+                "index": idx}
 
 
 class Noisy_MNIST_Dataset(Dataset):
@@ -86,7 +88,9 @@ class Noisy_MNIST_Dataset(Dataset):
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
-        return {"views": (x_a, x_b), "label": label}
+        return {"views": (x_a, x_b),
+                "label": label,
+                "index": idx}
 
 
 class Tangled_MNIST_Dataset(Dataset):
@@ -124,7 +128,9 @@ class Tangled_MNIST_Dataset(Dataset):
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
-        return {"views": (x_a, x_b), "label": label}
+        return {"views": (x_a, x_b),
+                "label": label,
+                "index": idx}
 
 
 def _add_mnist_noise(x):
