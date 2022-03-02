@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -9,7 +9,7 @@ with open("./requirements.txt", "r") as f:
 setup(
     name="multiviewdata",
     version="0",
-    packages=["multiviewdata"],
+    packages=find_packages(),
     url="",
     license="",
     author="James Chapman",
