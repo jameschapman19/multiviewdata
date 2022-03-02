@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.utils.validation import check_random_state
 from ..utils import _process_parameter
 
+
 def generate_simple_data(
     n: int,
     view_features: List[int],

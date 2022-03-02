@@ -7,6 +7,7 @@ from scipy.linalg import block_diag
 from sklearn.utils.validation import check_random_state
 from ..utils import _process_parameter
 
+
 def generate_covariance_data(
     n: int,
     view_features: List[int],
@@ -51,7 +52,7 @@ def generate_covariance_data(
             mean = np.zeros(sum(view_features))
             if not isinstance(correlation, list):
                 p = np.arange(0, latent_dims)
-                correlation = correlation * decay ** p
+                correlation = correlation * decay**p
             covs = []
             true_features = []
             for view_p, sparsity, view_structure, view_positive, view_sigma in zip(
@@ -130,6 +131,7 @@ def generate_covariance_data(
         )
     return views, true_features
 
+
 def _decorrelate_dims(up, cov):
     A = up.T @ cov @ up
     for k in range(1, A.shape[0]):
@@ -171,7 +173,7 @@ def _generate_gaussian_cov(p, sigma):
 
 def _generate_toeplitz_cov(p, sigma):
     c = np.arange(0, p)
-    c = sigma ** c
+    c = sigma**c
     cov = linalg.toeplitz(c, c)
     return cov
 

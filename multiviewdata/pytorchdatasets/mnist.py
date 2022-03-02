@@ -6,9 +6,8 @@ import torch
 import torch.utils.data
 import torchvision
 from torch.utils.data import Dataset
+from torchvision import datasets
 from torchvision import transforms
-
-from multiviewdata.utils.mnist import load_mnist
 
 
 class Split_MNIST_Dataset(Dataset):
@@ -129,3 +128,40 @@ class Tangled_MNIST_Dataset(Dataset):
 def _add_mnist_noise(x):
     x = x + torch.rand(28, 28) / 10
     return x
+
+
+def load_mnist(mnist_type, train):
+    if mnist_type == "MNIST":
+        dataset = load_mnist(mnist_type, train)
+        datasets.MNIST(
+            "../../data",
+            train=train,
+            download=True,
+            transform=torchvision.transforms.Compose(
+                [torchvision.transforms.ToTensor()]
+            ),
+        )
+
+    elif mnist_type == "FashionMNIST":
+        dataset = datasets.FashionMNIST(
+            "../../data",
+            train=train,
+            download=True,
+            transform=torchvision.transforms.Compose(
+                [torchvision.transforms.ToTensor()]
+            ),
+        )
+    elif mnist_type == "KMNIST":
+        dataset = datasets.KMNIST(
+            "../../data",
+            train=train,
+            download=True,
+            transform=torchvision.transforms.Compose(
+                [
+                    torchvision.transforms.ToTensor(),
+                ]
+            ),
+        )
+    else:
+        raise ValueError
+    return dataset

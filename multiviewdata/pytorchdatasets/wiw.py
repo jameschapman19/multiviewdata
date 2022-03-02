@@ -1,3 +1,4 @@
+import h5py
 import numpy as np
 from torch.utils.data import Dataset
 
@@ -37,3 +38,18 @@ class WIW_Dataset(Dataset):
             for feat in self.feats
         ]
         return {"views": tuple(views[:-1]), "partials": views[-1]}
+
+
+def Generate_Simlex_batch(languages, folder):
+    batch = [[], []]
+    for i, language in enumerate(languages):
+        batch[i] = np.genfromtxt(
+            "./data_sample/simlex_data/"
+            + folder
+            + "/simlex_"
+            + language
+            + "_batch_vectors.csv",
+            delimiter=",",
+            dtype=np.float32,
+        )
+    return batch
