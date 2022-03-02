@@ -1,24 +1,19 @@
+import glob
 import os
 
-from torch.utils.data import Dataset
-import glob
 import PIL
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io as sio
 import torch
+from torch.utils.data.dataset import Dataset
 from torchvision.datasets.utils import download_and_extract_archive
 
 
 class Cars_Dataset(Dataset):
     def __init__(self, root, download=False, train=True):
-        self.resources=["http://www.scottreed.info/files/nips2015-analogy-data.tar.gz"]
-        """
-        self.v1 = torch.tensor(v1).float()
-        self.v2 = torch.tensor(v2).float()
-        self.data_len = v1.shape[0]
-        """
-        self.root=root
+        self.resources = ["http://www.scottreed.info/files/nips2015-analogy-data.tar.gz"]
+        self.root = root
         if download:
             self.download()
 
@@ -26,7 +21,8 @@ class Cars_Dataset(Dataset):
             raise RuntimeError('Dataset not found.' +
                                ' You can use download=True to download it')
         if train:
-            pass
+            self.v1 = torch.load(os.path.join(self.raw_folder, 'view_1.pt'))
+            self.v2 = torch.load(os.path.join(self.raw_folder, 'view_2.pt'))
         else:
             pass
 
@@ -38,25 +34,38 @@ class Cars_Dataset(Dataset):
         return {"views": (self.v1[index], self.v2[index]), "index": index}
 
     def __len__(self):
-        return self.data_len
+        return self.v1.shape[0]
+
+    def _check_raw_exists(self) -> bool:
+        return os.path.exists(os.path.join(self.raw_folder,
+                                           "nips2015-analogy-data.tar.gz"))
 
     def _check_exists(self) -> bool:
-        return os.path.exists(os.path.join(self.raw_folder,
-                                            "nips2015-analogy-data.tar.gz"))
+        return (os.path.exists(os.path.join(self.raw_folder,
+                                           "view_1.pt")) and
+                os.path.exists(os.path.join(self.raw_folder,
+                                            "view_2.pt"))
+                )
 
     def download(self) -> None:
         """Download the data if it doesn't exist in processed_folder already."""
 
+        if not self._check_raw_exists():
+            os.makedirs(self.raw_folder, exist_ok=True)
+            import ssl
+            ssl._create_default_https_context = ssl._create_unverified_context
+            # download files
+            for url in self.resources:
+                filename = url.rpartition('/')[2]
+                download_and_extract_archive(url, download_root=self.raw_folder, filename=filename)
         if self._check_exists():
             return
-
-        os.makedirs(self.raw_folder, exist_ok=True)
-        import ssl
-        ssl._create_default_https_context = ssl._create_unverified_context
-        # download files
-        for url in self.resources:
-            filename = url.rpartition('/')[2]
-            download_and_extract_archive(url, download_root=self.raw_folder, filename=filename)
+        print('Processing...')
+        view_1, view_2 = get_cars3d(os.path.join(self.raw_folder, "data/cars/"))
+        with open(os.path.join(self.raw_folder, 'view_1.pt'), 'wb') as f:
+            torch.save(view_1, f)
+        with open(os.path.join(self.raw_folder, 'view_2.pt'), 'wb') as f:
+            torch.save(view_2, f)
         print('Done!')
 
 
@@ -78,7 +87,7 @@ def get_cars3d(filedir="./data/cars/"):
         for i in range(a["im"].shape[3]):
             for j in range(a["im"].shape[4]):
                 pic = PIL.Image.fromarray(a["im"][:, :, :, i, j])
-                pic.thumbnail((64, 64, 3), PIL.Image.ANTIALIAS)
+                pic.thumbnail((64, 64), PIL.Image.ANTIALIAS)
                 tt[i, j, :, :, :] = np.array(pic) / 255.0
 
         b = torch.tensor(tt)
