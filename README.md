@@ -3,9 +3,9 @@
 * Experimental package to give easy access to key toy and simulated datasets from the (deep) multiview learning literature
 * Feedback and contributions are welcome
 
-##Sources
+## Sources
 
-###XRMB
+### XRMB
 https://home.ttic.edu/~klivescu/XRMB_data/full/README
 
 This directory contains data based on the University of Wisconsin X-ray Microbeam Database (referred to here as XRMB).
@@ -28,14 +28,14 @@ http://ttic.edu/livescu/papers/wang_ICASSP2015.pdf
 
 If you use this version of the data, please cite the papers above.
 
-###WIW
+### WIW
 https://github.com/rotmanguy/DPCCA
 MIT License
 
-###Cars3d
+### Cars3d
 https://github.com/llvqi/multiview_and_self-supervision
 Apache License 2.0
 
-###MNIST
+### MNIST
 https://github.com/bcdutton/AdversarialCanonicalCorrelationAnalysis
 Unlicensed
