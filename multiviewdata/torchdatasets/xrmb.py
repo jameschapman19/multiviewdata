@@ -32,9 +32,11 @@ class XRMB_Dataset(Dataset):
             raise RuntimeError('Dataset not found.' +
                                ' You can use download=True to download it')
         if train:
-            self.view_1, self.view_2 = loadmat("XRMBf2KALDI_window7_single1.mat")["X1"], loadmat("XRMBf2KALDI_window7_single2.mat")["X2"]
+            view_1, view_2 = loadmat("XRMBf2KALDI_window7_single1.mat")["X1"], loadmat("XRMBf2KALDI_window7_single2.mat")["X2"]
         else:
-            self.view_1, self.view_2 = loadmat("XRMBf2KALDI_window7_single1.mat")["XTe1"], loadmat("XRMBf2KALDI_window7_single2.mat")["XTe2"]
+            view_1, view_2 = loadmat("XRMBf2KALDI_window7_single1.mat")["XTe1"], loadmat("XRMBf2KALDI_window7_single2.mat")["XTe2"]
+        self.dataset = dict(view_1=view_1,
+                            view_2=view_2)
 
     @property
     def raw_folder(self) -> str:
@@ -44,7 +46,7 @@ class XRMB_Dataset(Dataset):
         return len(self.view_1)
 
     def __getitem__(self, idx):
-        return {"views": (self.view_1[idx], self.view_2[idx]),
+        return {"views": (self.dataset["view_1"][index], self.dataset["view_2"][index]),
                 "index": idx}
 
     def _check_exists(self) -> bool:

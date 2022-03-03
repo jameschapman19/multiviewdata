@@ -11,7 +11,7 @@ from torchvision.datasets.utils import download_and_extract_archive
 
 
 class Cars_Dataset(Dataset):
-    def __init__(self, root:str, download:bool=False, train:bool=True):
+    def __init__(self, root: str, download: bool = False, train: bool = True):
         """
 
         :param root: Root directory of dataset
@@ -29,8 +29,8 @@ class Cars_Dataset(Dataset):
             raise RuntimeError('Dataset not found.' +
                                ' You can use download=True to download it')
         if train:
-            self.v1 = torch.load(os.path.join(self.raw_folder, 'view_1.pt'))
-            self.v2 = torch.load(os.path.join(self.raw_folder, 'view_2.pt'))
+            self.dataset = dict(view_1=torch.load(os.path.join(self.raw_folder, 'view_1.pt')),
+                                view_2=torch.load(os.path.join(self.raw_folder, 'view_2.pt')))
         else:
             pass
 
@@ -39,7 +39,7 @@ class Cars_Dataset(Dataset):
         return os.path.join(self.root, self.__class__.__name__, 'raw')
 
     def __getitem__(self, index):
-        return {"views": (self.v1[index], self.v2[index]),
+        return {"views": (self.dataset["view_1"][index], self.dataset["view_2"][index]),
                 "index": index}
 
     def __len__(self):
@@ -51,7 +51,7 @@ class Cars_Dataset(Dataset):
 
     def _check_exists(self) -> bool:
         return (os.path.exists(os.path.join(self.raw_folder,
-                                           "view_1.pt")) and
+                                            "view_1.pt")) and
                 os.path.exists(os.path.join(self.raw_folder,
                                             "view_2.pt"))
                 )

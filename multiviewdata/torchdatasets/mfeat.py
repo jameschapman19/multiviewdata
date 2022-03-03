@@ -27,14 +27,12 @@ class MFeat_Dataset(Dataset):
             self.feats = ["fac", "fou", "kar", "mor", "pix", "zer"]
         if partials is None:
             self.partials = None
-        self.dataset = {
-            "fac": np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-fac')),
-            "fou": np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-fou')),
-            "kar": np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-kar')),
-            "mor": np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-mor')),
-            "pix": np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-pix')),
-            "zer": np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-zer'))
-        }
+        self.dataset = dict(fac=np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-fac')),
+                            fou=np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-fou')),
+                            kar=np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-kar')),
+                            mor=np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-mor')),
+                            pix=np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-pix')),
+                            zer=np.genfromtxt(os.path.join(self.raw_folder, 'mfeat/mfeat-zer')))
 
     @property
     def raw_folder(self) -> str:

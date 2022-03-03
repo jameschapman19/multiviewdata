@@ -36,9 +36,11 @@ class Twitter_Dataset(Dataset):
             raise RuntimeError('Dataset not found.' +
                                ' You can use download=True to download it')
 
-        self.ids, self.views = ldViews(
+        ids, views = ldViews(
             os.path.join(self.raw_folder, 'user_6views_tfidf_pcaEmbeddings_userTweets+networks.tsv'), viewstokeep,
             replaceempty=replaceempty, maxrows=maxrows)
+        self.dataset = dict(ids=ids,
+                            views=views)
 
     @property
     def raw_folder(self) -> str:
