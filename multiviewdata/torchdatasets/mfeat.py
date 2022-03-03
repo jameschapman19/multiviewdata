@@ -50,9 +50,11 @@ class MFeatDataset(Dataset):
         return os.path.join(self.root, self.__class__.__name__, "raw")
 
     def __getitem__(self, index):
-        views = [self.dataset[feat][index] for feat in self.feats]
-        partials = [self.dataset[partial][index] for partial in self.partials]
-        return {"views": views, "partials": partials, "index": index}
+        batch = {"index": index}
+        batch["views"] = [self.dataset[feat][index] for feat in self.feats]
+        if self.partials is not None:
+            batch["partials"] = [self.dataset[partial][index] for partial in self.partials]
+        return batch
 
     def __len__(self):
         return self.v1.shape[0]
