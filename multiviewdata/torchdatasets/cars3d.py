@@ -45,7 +45,7 @@ class CarsDataset(Dataset):
 
     def __getitem__(self, index):
         return {
-            "views": (self.dataset["view_1"][index], self.dataset["view_2"][index]),
+            "views": (self.dataset["view_1"][index].astype(np.float32), self.dataset["view_2"][index].astype(np.float32)),
             "index": index,
         }
 

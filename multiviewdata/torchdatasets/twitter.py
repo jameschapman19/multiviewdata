@@ -56,9 +56,9 @@ class TwitterDataset(Dataset):
         return os.path.join(self.root, self.__class__.__name__, "raw")
 
     def __getitem__(self, index):
-        batch = {"index": index}
-        batch["userid"] = self.ids[index]
-        batch["views"] = [view[index] for view in self.views]
+        batch = {"index": index.astype(np.float32)}
+        batch["userid"] = self.ids[index].astype(np.float32)
+        batch["views"] = [view[index].astype(np.float32) for view in self.views]
         return batch
 
     def __len__(self):

@@ -71,7 +71,7 @@ class WIWDataset(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, index):
-        batch = {"index": index}
+        batch = {"index": index.astype(np.float32)}
         batch["views"] = [
             self.dataset["%06d" % index][feat + "_feats"][()].astype(np.float32)
             for feat in self.feats

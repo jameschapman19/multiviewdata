@@ -3,7 +3,7 @@ import os
 from scipy.io import loadmat
 from torch.utils.data import Dataset
 from torchvision.datasets.utils import download_url
-
+import numpy as np
 
 class XRMBDataset(Dataset):
     def __init__(
@@ -53,8 +53,8 @@ class XRMBDataset(Dataset):
 
     def __getitem__(self, index):
         return {
-            "views": (self.dataset["view_1"][index], self.dataset["view_2"][index]),
-            "index": index,
+            "views": (self.dataset["view_1"][index].astype(np.float32), self.dataset["view_2"][index].astype(np.float32)),
+            "index": index.astype(np.float32),
         }
 
     def _check_exists(self) -> bool:
