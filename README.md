@@ -3,6 +3,34 @@
 * Experimental package to give easy access to key toy and simulated datasets from the (deep) multiview learning literature
 * Feedback and contributions are welcome
 
+## Getting Started
+
+Datasets are imported and built with the following syntax:
+
+```python
+import os
+from multiviewdata.torchdatasets import XRMBDataset
+
+my_dataset = XRMBDataset(root=os.getcwd(),download=True)
+```
+
+Datasets have somewhat standardised batches. 
+
+```python
+my_dataset[0]['index'] # returns the index of the batch element
+my_dataset[0]['views'] # returns a tuple/list of each view
+```
+
+Individual datasets may have additional information such as "label", "partial", and "userid".
+For more information check the docs for each dataset.
+
+## Roadmap
+
+* option to convert torch datasets to dictionaries of numpy arrays to allow for batch methods
+* additional datasets
+* standardised plotting functions for each dataset?
+* benchmarks?
+
 ## Sources
 
 ### XRMB
