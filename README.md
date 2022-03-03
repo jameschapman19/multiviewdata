@@ -2,6 +2,7 @@
 ![Build Status](https://github.com/jameschapman19/multiviewdata/actions/workflows/python-package.yml/badge.svg)
 [![downloads](https://img.shields.io/pypi/dm/multiviewdata)](https://pypi.org/project/multiviewdata/)
 [![version](https://img.shields.io/pypi/v/multiviewdata)](https://pypi.org/project/multiviewdata/)
+[![codecov](https://codecov.io/gh/jameschapman19/multiviewdata/branch/main/graph/badge.svg?token=kRD0CYuXsz)](https://codecov.io/gh/jameschapman19/multiviewdata)
 
 # Multiview Data
 

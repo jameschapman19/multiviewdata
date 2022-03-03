@@ -24,3 +24,15 @@ def test_mfeat():
     a = MFeatDataset(os.getcwd(), download=True)[0]
     assert "index" in a
     assert "views" in a
+
+def test_twitter():
+    from multiviewdata.torchdatasets import TwitterDataset
+    a = TwitterDataset(os.getcwd(), download=True, maxrows=10)[0]
+    assert "index" in a
+    assert "views" in a
+
+def test_cars():
+    from multiviewdata.torchdatasets import CarsDataset
+    a = CarsDataset(os.getcwd(), download=True)[0]
+    assert "index" in a
+    assert "views" in a
