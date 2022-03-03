@@ -1,6 +1,7 @@
 [![DOI](https://zenodo.org/badge/465287085.svg)](https://zenodo.org/badge/latestdoi/465287085)
 ![Build Status](https://github.com/jameschapman19/multiviewdata/actions/workflows/python-package.yml/badge.svg)
 [![downloads](https://img.shields.io/pypi/dm/multiviewdata)](https://pypi.org/project/multiviewdata/)
+[![version](https://img.shields.io/pypi/v/multiviewdata)](https://pypi.org/project/multiviewdata/)
 
 # Multiview Data
 
