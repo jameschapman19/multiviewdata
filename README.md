@@ -39,3 +39,10 @@ Apache License 2.0
 ### MNIST
 https://github.com/bcdutton/AdversarialCanonicalCorrelationAnalysis
 Unlicensed
+
+### MFeat
+
+
+### Twitter
+https://github.com/abenton/wgcca
+MIT License

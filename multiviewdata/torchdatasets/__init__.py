@@ -4,3 +4,4 @@ from .mnist import Noisy_MNIST_Dataset, Split_MNIST_Dataset, Tangled_MNIST_Datas
 from .wiw import WIW_Dataset
 from .xrmb import XRMB_Dataset
 from .mfeat import MFeat_Dataset
+from .twitter import Twitter_Dataset

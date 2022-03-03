@@ -12,6 +12,14 @@ class XRMB_Dataset(Dataset):
             train=True,
             download=False,
     ):
+        """
+
+        :param root: Root directory of dataset
+        :param train:
+        :param download: If true, downloads the dataset from the internet and
+            puts it in root directory. If dataset is already downloaded, it is not
+            downloaded again.
+        """
         self.root = root
         self.resources = [
             ("http://ttic.edu/livescu/XRMB_data/full/XRMBf2KALDI_window7_single1.mat"),

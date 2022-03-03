@@ -11,7 +11,15 @@ from torchvision.datasets.utils import download_and_extract_archive
 
 
 class Cars_Dataset(Dataset):
-    def __init__(self, root, download=False, train=True):
+    def __init__(self, root:str, download:bool=False, train:bool=True):
+        """
+
+        :param root: Root directory of dataset
+        :param download: If true, downloads the dataset from the internet and
+            puts it in root directory. If dataset is already downloaded, it is not
+            downloaded again.
+        :param train:
+        """
         self.resources = ["http://www.scottreed.info/files/nips2015-analogy-data.tar.gz"]
         self.root = root
         if download:

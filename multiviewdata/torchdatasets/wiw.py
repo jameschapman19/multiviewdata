@@ -8,7 +8,17 @@ from torch.utils.data import Dataset
 
 
 class WIW_Dataset(Dataset):
-    def __init__(self, root, feats=None, partials=None, lng_dict=None, split="train", download=True):
+    def __init__(self, root, feats=None, partials=None, split="train", download=True):
+        """
+
+        :param root: Root directory of dataset
+        :param feats: Which features to use from ["eng", "ru", "ger", "it", "vis"]
+        :param partials: Which features to use as partials from ["eng", "ru", "ger", "it", "vis"]
+        :param split:
+        :param download: If true, downloads the dataset from the internet and
+            puts it in root directory. If dataset is already downloaded, it is not
+            downloaded again.
+        """
         self.resources = [("https://mega.nz/file/Gc0kHBTA#CYpHo_Vs2j1BIML2rlBhxFtOzzAzpkhSIeYT3rE93Go", "wiw_data.zip")]
         self.root = root
         if download:
@@ -18,8 +28,8 @@ class WIW_Dataset(Dataset):
             raise RuntimeError('Dataset not found.' +
                                ' You can use download=True to download it')
         # Dataset parameters
-        if lng_dict is None:
-            lng_dict = {
+
+        self.lng_dict = {
                 "eng": "english",
                 "ger": "german",
                 "it": "italian",
@@ -29,7 +39,6 @@ class WIW_Dataset(Dataset):
             self.feats = ["eng", "ru"]
         if partials is None:
             self.partials = ['vis']
-        self.lng_dict = lng_dict
         self.folder = self.feats[0] + "_" + self.feats[1]
         self.dname = "/wiw_" + self.folder + "_img_pca_300_wv_splitted"  # Dataset Name
         self.dataset = h5py.File(

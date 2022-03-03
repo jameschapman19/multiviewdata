@@ -55,6 +55,9 @@ class Noisy_MNIST_Dataset(Dataset):
         :param root: Root directory of dataset
         :param mnist_type: "MNIST", "FashionMNIST" or "KMNIST"
         :param train: whether this is train or test
+        :param download: If true, downloads the dataset from the internet and
+            puts it in root directory. If dataset is already downloaded, it is not
+            downloaded again.
         :param flatten: whether to flatten the data into array or use 2d images
         """
         self.dataset = load_mnist(mnist_type, train, root, download)
