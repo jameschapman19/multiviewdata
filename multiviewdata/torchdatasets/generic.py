@@ -2,7 +2,7 @@ import numpy as np
 from torch.utils.data import Dataset
 
 
-class Generic_Dataset(Dataset):
+class GenericDataset(Dataset):
     """
     Class that turns numpy arrays into a torch dataset
 
@@ -20,5 +20,4 @@ class Generic_Dataset(Dataset):
 
     def __getitem__(self, idx):
         views = [view[idx].astype(np.float32) for view in self.views]
-        return {"views": views,
-                "index": idx}
+        return {"views": views, "index": idx}

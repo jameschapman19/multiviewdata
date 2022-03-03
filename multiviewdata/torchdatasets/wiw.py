@@ -7,7 +7,7 @@ import numpy as np
 from torch.utils.data import Dataset
 
 
-class WIW_Dataset(Dataset):
+class WIWDataset(Dataset):
     def __init__(self, root, feats=None, partials=None, split="train", download=True):
         """
 
@@ -19,26 +19,32 @@ class WIW_Dataset(Dataset):
             puts it in root directory. If dataset is already downloaded, it is not
             downloaded again.
         """
-        self.resources = [("https://mega.nz/file/Gc0kHBTA#CYpHo_Vs2j1BIML2rlBhxFtOzzAzpkhSIeYT3rE93Go", "wiw_data.zip")]
+        self.resources = [
+            (
+                "https://mega.nz/file/Gc0kHBTA#CYpHo_Vs2j1BIML2rlBhxFtOzzAzpkhSIeYT3rE93Go",
+                "wiw_data.zip",
+            )
+        ]
         self.root = root
         if download:
             self.download()
 
         if not self._check_exists():
-            raise RuntimeError('Dataset not found.' +
-                               ' You can use download=True to download it')
+            raise RuntimeError(
+                "Dataset not found." + " You can use download=True to download it"
+            )
         # Dataset parameters
 
         self.lng_dict = {
-                "eng": "english",
-                "ger": "german",
-                "it": "italian",
-                "ru": "russian",
-            }
+            "eng": "english",
+            "ger": "german",
+            "it": "italian",
+            "ru": "russian",
+        }
         if feats is None:
             self.feats = ["eng", "ru"]
         if partials is None:
-            self.partials = ['vis']
+            self.partials = ["vis"]
         self.folder = self.feats[0] + "_" + self.feats[1]
         self.dname = "/wiw_" + self.folder + "_img_pca_300_wv_splitted"  # Dataset Name
         self.dataset = h5py.File(
@@ -53,15 +59,13 @@ class WIW_Dataset(Dataset):
 
     @property
     def raw_folder(self) -> str:
-        return os.path.join(self.root, self.__class__.__name__, 'raw')
+        return os.path.join(self.root, self.__class__.__name__, "raw")
 
     def _check_exists(self) -> bool:
-        return os.path.exists(os.path.join(self.raw_folder,
-                                           "wiw_data"))
+        return os.path.exists(os.path.join(self.raw_folder, "wiw_data"))
 
     def _check_raw_exists(self) -> bool:
-        return os.path.exists(os.path.join(self.raw_folder,
-                                           "wiw_data.zip"))
+        return os.path.exists(os.path.join(self.raw_folder, "wiw_data.zip"))
 
     def __len__(self):
         return len(self.dataset)
@@ -86,30 +90,31 @@ class WIW_Dataset(Dataset):
             os.makedirs(self.raw_folder, exist_ok=True)
             print(
                 f"Download raw zip file from https://mega.nz/file/eV0STDTR#w6Xg248RQdzL28VOmoqsFLidJqrlSZKx7f8AGqfA204"
-                f"and put it in {self.raw_folder}. This is manual because the python api is extremely slow.")
+                f"and put it in {self.raw_folder}. This is manual because the python api is extremely slow."
+            )
         if self._check_exists():
             return
         with zipfile.ZipFile(os.path.join(self.raw_folder, "wiw_data.zip")) as z:
             z.extractall(self.raw_folder)
-        print('Processing...')
+        print("Processing...")
         self.process()
-        print('Done!')
+        print("Done!")
 
     def process(self):
         for languages in [("eng", "ger"), ("eng", "it"), ("eng", "ru")]:
             # Split data
             lng1, lng2 = languages
-            dataset_name = (os.path.join(self.raw_folder,
-                                         "wiw_data/")
-                            + lng1
-                            + "_"
-                            + lng2
-                            + "/wiw_"
-                            + lng1
-                            + "_"
-                            + lng2
-                            + "_img_pca_300_wv.h5"
-                            )
+            dataset_name = (
+                os.path.join(self.raw_folder, "wiw_data/")
+                + lng1
+                + "_"
+                + lng2
+                + "/wiw_"
+                + lng1
+                + "_"
+                + lng2
+                + "_img_pca_300_wv.h5"
+            )
             dataname = h5py.File(dataset_name, "r")
             dataset_split = dataname["train"]
 
@@ -132,11 +137,17 @@ class WIW_Dataset(Dataset):
                 lng2_desc = tup[lng2 + "_descriptions_feats"][()][0]  # .value[0]
 
                 if idx < train_size:
-                    train_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
+                    train_data.append(
+                        (lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc)
+                    )
                 elif idx < train_size + val_size:
-                    val_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
+                    val_data.append(
+                        (lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc)
+                    )
                 else:
-                    test_data.append((lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc))
+                    test_data.append(
+                        (lng1_feats, lng2_feats, vis_feats, lng1_desc, lng2_desc)
+                    )
 
             # Write data
             fname = dataset_name[:-3] + "_splitted"

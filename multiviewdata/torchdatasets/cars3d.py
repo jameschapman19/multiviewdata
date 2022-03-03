@@ -10,7 +10,7 @@ from torch.utils.data.dataset import Dataset
 from torchvision.datasets.utils import download_and_extract_archive
 
 
-class Cars_Dataset(Dataset):
+class CarsDataset(Dataset):
     def __init__(self, root: str, download: bool = False, train: bool = True):
         """
 
@@ -20,41 +20,47 @@ class Cars_Dataset(Dataset):
             downloaded again.
         :param train:
         """
-        self.resources = ["http://www.scottreed.info/files/nips2015-analogy-data.tar.gz"]
+        self.resources = [
+            "http://www.scottreed.info/files/nips2015-analogy-data.tar.gz"
+        ]
         self.root = root
         if download:
             self.download()
 
         if not self._check_exists():
-            raise RuntimeError('Dataset not found.' +
-                               ' You can use download=True to download it')
+            raise RuntimeError(
+                "Dataset not found." + " You can use download=True to download it"
+            )
         if train:
-            self.dataset = dict(view_1=torch.load(os.path.join(self.raw_folder, 'view_1.pt')),
-                                view_2=torch.load(os.path.join(self.raw_folder, 'view_2.pt')))
+            self.dataset = dict(
+                view_1=torch.load(os.path.join(self.raw_folder, "view_1.pt")),
+                view_2=torch.load(os.path.join(self.raw_folder, "view_2.pt")),
+            )
         else:
             pass
 
     @property
     def raw_folder(self) -> str:
-        return os.path.join(self.root, self.__class__.__name__, 'raw')
+        return os.path.join(self.root, self.__class__.__name__, "raw")
 
     def __getitem__(self, index):
-        return {"views": (self.dataset["view_1"][index], self.dataset["view_2"][index]),
-                "index": index}
+        return {
+            "views": (self.dataset["view_1"][index], self.dataset["view_2"][index]),
+            "index": index,
+        }
 
     def __len__(self):
         return self.v1.shape[0]
 
     def _check_raw_exists(self) -> bool:
-        return os.path.exists(os.path.join(self.raw_folder,
-                                           "nips2015-analogy-data.tar.gz"))
+        return os.path.exists(
+            os.path.join(self.raw_folder, "nips2015-analogy-data.tar.gz")
+        )
 
     def _check_exists(self) -> bool:
-        return (os.path.exists(os.path.join(self.raw_folder,
-                                            "view_1.pt")) and
-                os.path.exists(os.path.join(self.raw_folder,
-                                            "view_2.pt"))
-                )
+        return os.path.exists(
+            os.path.join(self.raw_folder, "view_1.pt")
+        ) and os.path.exists(os.path.join(self.raw_folder, "view_2.pt"))
 
     def download(self) -> None:
         """Download the data if it doesn't exist in processed_folder already."""
@@ -62,20 +68,23 @@ class Cars_Dataset(Dataset):
         if not self._check_raw_exists():
             os.makedirs(self.raw_folder, exist_ok=True)
             import ssl
+
             ssl._create_default_https_context = ssl._create_unverified_context
             # download files
             for url in self.resources:
-                filename = url.rpartition('/')[2]
-                download_and_extract_archive(url, download_root=self.raw_folder, filename=filename)
+                filename = url.rpartition("/")[2]
+                download_and_extract_archive(
+                    url, download_root=self.raw_folder, filename=filename
+                )
         if self._check_exists():
             return
-        print('Processing...')
+        print("Processing...")
         view_1, view_2 = get_cars3d(os.path.join(self.raw_folder, "data/cars/"))
-        with open(os.path.join(self.raw_folder, 'view_1.pt'), 'wb') as f:
+        with open(os.path.join(self.raw_folder, "view_1.pt"), "wb") as f:
             torch.save(view_1, f)
-        with open(os.path.join(self.raw_folder, 'view_2.pt'), 'wb') as f:
+        with open(os.path.join(self.raw_folder, "view_2.pt"), "wb") as f:
             torch.save(view_2, f)
-        print('Done!')
+        print("Done!")
 
 
 # Shuffle the private information

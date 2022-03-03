@@ -10,13 +10,18 @@ from torchvision import datasets
 from torchvision import transforms
 
 
-class Split_MNIST_Dataset(Dataset):
+class SplitMNISTDataset(Dataset):
     """
     Class to generate paired noisy mnist data
     """
 
     def __init__(
-        self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True, download=False,
+        self,
+        root: str,
+        mnist_type: str = "MNIST",
+        train: bool = True,
+        flatten: bool = True,
+        download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -38,18 +43,21 @@ class Split_MNIST_Dataset(Dataset):
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
-        return {"views": (x_a, x_b),
-                "label": label,
-                "index": idx}
+        return {"views": (x_a, x_b), "label": label, "index": idx}
 
 
-class Noisy_MNIST_Dataset(Dataset):
+class NoisyMNISTDataset(Dataset):
     """
     Class to generate paired noisy mnist data
     """
 
     def __init__(
-            self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True, download=False,
+        self,
+        root: str,
+        mnist_type: str = "MNIST",
+        train: bool = True,
+        flatten: bool = True,
+        download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -91,18 +99,21 @@ class Noisy_MNIST_Dataset(Dataset):
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
-        return {"views": (x_a, x_b),
-                "label": label,
-                "index": idx}
+        return {"views": (x_a, x_b), "label": label, "index": idx}
 
 
-class Tangled_MNIST_Dataset(Dataset):
+class TangledMNISTDataset(Dataset):
     """
     Class to generate paired tangled MNIST dataset
     """
 
     def __init__(
-            self, root: str, mnist_type: str = "MNIST", train: bool = True, flatten: bool = True, download=False,
+        self,
+        root: str,
+        mnist_type: str = "MNIST",
+        train: bool = True,
+        flatten: bool = True,
+        download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -131,9 +142,7 @@ class Tangled_MNIST_Dataset(Dataset):
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
-        return {"views": (x_a, x_b),
-                "label": label,
-                "index": idx}
+        return {"views": (x_a, x_b), "label": label, "index": idx}
 
 
 def _add_mnist_noise(x):
@@ -143,7 +152,7 @@ def _add_mnist_noise(x):
 
 def load_mnist(mnist_type, train, root, download):
     if mnist_type == "MNIST":
-        dataset=datasets.MNIST(
+        dataset = datasets.MNIST(
             root,
             train=train,
             download=download,
