@@ -1,2 +1,1 @@
 import multiviewdata.torchdatasets
-import multiviewdata.simulated

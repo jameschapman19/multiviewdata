@@ -35,6 +35,7 @@ For more information check the docs for each dataset.
 * additional datasets
 * standardised plotting functions for each dataset?
 * benchmarks?
+* tensorflow versions?
 
 ## Sources
 
