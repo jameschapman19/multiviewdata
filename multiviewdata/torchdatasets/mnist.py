@@ -99,7 +99,7 @@ class NoisyMNISTDataset(Dataset):
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
-        return {"views": (x_a.astype(np.float32), x_b.astype(np.float32)), "label": label.astype(np.float32), "index": index}
+        return {"views": (x_a.float(), x_b.float()), "label": label, "index": index}
 
 
 class TangledMNISTDataset(Dataset):
