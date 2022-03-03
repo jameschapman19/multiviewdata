@@ -1,3 +1,7 @@
+[![DOI](https://zenodo.org/badge/465287085.svg)](https://zenodo.org/badge/latestdoi/465287085)
+![Build Status](https://github.com/jameschapman19/multiviewdata/actions/workflows/python-package.yml/badge.svg)
+[![downloads](https://img.shields.io/pypi/dm/multiviewdata)](https://pypi.org/project/multiviewdata/)
+
 # Multiview Data
 
 * Experimental package to give easy access to key toy and simulated datasets from the (deep) multiview learning literature
