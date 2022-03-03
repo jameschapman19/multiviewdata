@@ -70,15 +70,15 @@ class WIWDataset(Dataset):
     def __len__(self):
         return len(self.dataset)
 
-    def __getitem__(self, idx):
-        batch = {"index": idx}
+    def __getitem__(self, index):
+        batch = {"index": index}
         batch["views"] = [
-            self.dataset["%06d" % idx][feat + "_feats"][()].astype(np.float32)
+            self.dataset["%06d" % index][feat + "_feats"][()].astype(np.float32)
             for feat in self.feats
         ]
         if self.partials is not None:
             batch["partials"] = [
-                self.dataset["%06d" % idx][partial + "_feats"][()].astype(np.float32)
+                self.dataset["%06d" % index][partial + "_feats"][()].astype(np.float32)
                 for partial in self.partials
             ]
         return batch

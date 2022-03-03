@@ -51,10 +51,10 @@ class XRMBDataset(Dataset):
     def __len__(self):
         return len(self.view_1)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, index):
         return {
             "views": (self.dataset["view_1"][index], self.dataset["view_2"][index]),
-            "index": idx,
+            "index": index,
         }
 
     def _check_exists(self) -> bool:

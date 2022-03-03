@@ -90,8 +90,8 @@ class NoisyMNISTDataset(Dataset):
     def __len__(self):
         return len(self.dataset)
 
-    def __getitem__(self, idx):
-        x_a, label = self.dataset[idx]
+    def __getitem__(self, index):
+        x_a, label = self.dataset[index]
         x_a = self.a_transform(x_a)
         # get random index of image with same class
         random_index = np.random.choice(self.filtered_nums[label])
@@ -99,7 +99,7 @@ class NoisyMNISTDataset(Dataset):
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
-        return {"views": (x_a, x_b), "label": label, "index": idx}
+        return {"views": (x_a, x_b), "label": label, "index": index}
 
 
 class TangledMNISTDataset(Dataset):
