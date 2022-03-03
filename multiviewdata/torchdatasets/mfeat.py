@@ -57,7 +57,7 @@ class MFeatDataset(Dataset):
         return batch
 
     def __len__(self):
-        return self.v1.shape[0]
+        return len(self.dataset["fac"])
 
     def _check_raw_exists(self) -> bool:
         return os.path.exists(os.path.join(self.raw_folder, "mfeat.tar"))

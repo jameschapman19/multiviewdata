@@ -62,7 +62,7 @@ class TwitterDataset(Dataset):
         return batch
 
     def __len__(self):
-        return self.v1.shape[0]
+        return len(self.dataset["views"][0])
 
     def _check_raw_exists(self) -> bool:
         return os.path.exists(

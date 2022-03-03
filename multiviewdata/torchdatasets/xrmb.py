@@ -49,7 +49,7 @@ class XRMBDataset(Dataset):
         return os.path.join(self.root, self.__class__.__name__, "raw")
 
     def __len__(self):
-        return len(self.view_1)
+        return len(self.dataset["view_1"])
 
     def __getitem__(self, index):
         return {
