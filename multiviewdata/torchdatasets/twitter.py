@@ -24,7 +24,7 @@ from torch.utils.data.dataset import Dataset
 from torchvision.datasets.utils import download_and_extract_archive
 
 
-class TwitterDataset(Dataset):
+class Twitter(Dataset):
     def __init__(
         self, root, viewstokeep=None, download=False, maxrows=-1, replaceempty=True
     ):

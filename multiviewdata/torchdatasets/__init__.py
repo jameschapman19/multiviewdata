@@ -1,7 +1,8 @@
-from .cars3d import CarsDataset
+from .cars3d import Cars
 from .generic import GenericDataset
-from .mnist import NoisyMNISTDataset, SplitMNISTDataset, TangledMNISTDataset
-from .wiw import WIWDataset
-from .xrmb import XRMBDataset
-from .mfeat import MFeatDataset
-from .twitter import TwitterDataset
+from .mnist import NoisyMNIST, SplitMNIST, TangledMNIST, MNISTSVHN
+from .wiw import WIW
+from .xrmb import XRMB
+from .mfeat import MFeat
+from .twitter import Twitter
+from .cub import Cub

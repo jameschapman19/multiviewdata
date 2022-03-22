@@ -1,6 +1,3 @@
-"""Helped by https://github.com/bcdutton/AdversarialCanonicalCorrelationAnalysis (hopefully I will have my own
-implementation of their work soon) Check out their paper at https://arxiv.org/abs/2005.10349 """
-
 import numpy as np
 import torch
 import torch.utils.data
@@ -10,18 +7,18 @@ from torchvision import datasets
 from torchvision import transforms
 
 
-class SplitMNISTDataset(Dataset):
+class SplitMNIST(Dataset):
     """
     Class to generate paired noisy mnist data
     """
 
     def __init__(
-        self,
-        root: str,
-        mnist_type: str = "MNIST",
-        train: bool = True,
-        flatten: bool = True,
-        download=False,
+            self,
+            root: str,
+            mnist_type: str = "MNIST",
+            train: bool = True,
+            flatten: bool = True,
+            download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -46,18 +43,18 @@ class SplitMNISTDataset(Dataset):
         return {"views": (x_a, x_b), "label": label, "index": idx}
 
 
-class NoisyMNISTDataset(Dataset):
+class NoisyMNIST(Dataset):
     """
     Class to generate paired noisy mnist data
     """
 
     def __init__(
-        self,
-        root: str,
-        mnist_type: str = "MNIST",
-        train: bool = True,
-        flatten: bool = True,
-        download=False,
+            self,
+            root: str,
+            mnist_type: str = "MNIST",
+            train: bool = True,
+            flatten: bool = True,
+            download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -102,18 +99,18 @@ class NoisyMNISTDataset(Dataset):
         return {"views": (x_a.float(), x_b.float()), "label": label, "index": index}
 
 
-class TangledMNISTDataset(Dataset):
+class TangledMNIST(Dataset):
     """
     Class to generate paired tangled MNIST dataset
     """
 
     def __init__(
-        self,
-        root: str,
-        mnist_type: str = "MNIST",
-        train: bool = True,
-        flatten: bool = True,
-        download=False,
+            self,
+            root: str,
+            mnist_type: str = "MNIST",
+            train: bool = True,
+            flatten: bool = True,
+            download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -184,3 +181,69 @@ def load_mnist(mnist_type, train, root, download):
     else:
         raise ValueError
     return dataset
+
+
+class MNISTSVHN(Dataset):
+    """
+    We construct a dataset of pairs of MNIST and SVHN such that each pair depicts the same digit class. Each instance of a digit class in either dataset is randomly paired with 20 instances of the same digit class from the other dataset.
+    """
+
+    def __init__(
+            self,
+            root: str,
+            max_d: int = 10000,
+            dm: int = 10,
+            train: bool = True,
+            download=False,
+            flatten: bool = True,
+    ):
+        """
+        :param root: Root directory of dataset
+        :param train: whether this is train or test
+        :param flatten: whether to flatten the data into array or use 2d images
+        """
+        self.flatten = flatten
+        self.mnist = load_mnist("MNIST", train, root, download)
+        self.svhn = self.load_svhn(train, root, download)
+        self.mnist_index, self.svhn_index = self.rand_match_on_idx(max_d=max_d, dm=dm)
+
+    def __len__(self):
+        return len(self.mnist_index)
+
+    def __getitem__(self, idx):
+        x, label = self.mnist[self.mnist_index[idx]]
+        y, label_ = self.svhn[self.svhn_index[idx]]
+        assert label == label_, "labels not the same so something is wrong with the dataset"
+        if self.flatten:
+            x = torch.flatten(x)
+            y = torch.flatten(y)
+        return {"views": (x, y), "label": label, "index": idx}
+
+    def load_svhn(self, train, root, download):
+        if train:
+            svhn = datasets.SVHN(root, split='train', download=download,transform=torchvision.transforms.Compose(
+                [torchvision.transforms.ToTensor()]
+            ),)
+        else:
+            svhn = datasets.SVHN(root, split='test', download=download,transform=torchvision.transforms.Compose(
+                [torchvision.transforms.ToTensor()]
+            ),)
+        svhn.labels = torch.LongTensor(svhn.labels.squeeze().astype(int)) % 10
+        return svhn
+
+    def rand_match_on_idx(self, max_d=10000, dm=10):
+        """
+        l*: sorted labels
+        idx*: indices of sorted labels in original list
+        """
+        mnist_l, mnist_li = self.mnist.targets.sort()
+        svhn_l, svhn_li = self.svhn.labels.sort()
+        _idx1, _idx2 = [], []
+        for l in mnist_l.unique():  # assuming both have same idxs
+            l_idx1, l_idx2 = mnist_li[mnist_l == l], svhn_li[svhn_l == l]
+            n = min(l_idx1.size(0), l_idx2.size(0), max_d)
+            l_idx1, l_idx2 = l_idx1[:n], l_idx2[:n]
+            for _ in range(dm):
+                _idx1.append(l_idx1[torch.randperm(n)])
+                _idx2.append(l_idx2[torch.randperm(n)])
+        return torch.cat(_idx1), torch.cat(_idx2)

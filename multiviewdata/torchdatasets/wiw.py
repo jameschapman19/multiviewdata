@@ -7,7 +7,7 @@ import numpy as np
 from torch.utils.data import Dataset
 
 
-class WIWDataset(Dataset):
+class WIW(Dataset):
     def __init__(self, root, feats=None, partials=None, split="train", download=True):
         """
 

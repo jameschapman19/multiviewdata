@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 from torchvision.datasets.utils import download_url
 import numpy as np
 
-class XRMBDataset(Dataset):
+class XRMB(Dataset):
     def __init__(
         self,
         root,

@@ -10,7 +10,7 @@ from torch.utils.data.dataset import Dataset
 from torchvision.datasets.utils import download_and_extract_archive
 
 
-class CarsDataset(Dataset):
+class Cars(Dataset):
     def __init__(self, root: str, download: bool = False, train: bool = True):
         """
 
