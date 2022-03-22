@@ -15,9 +15,9 @@ Datasets are imported and built with the following syntax:
 
 ```python
 import os
-from multiviewdata.torchdatasets import XRMBDataset
+from multiviewdata.torchdatasets import XRMB
 
-my_dataset = XRMBDataset(root=os.getcwd(),download=True)
+my_dataset = XRMB(root=os.getcwd(),download=True)
 ```
 
 Datasets have somewhat standardised batches. 
