@@ -2,7 +2,7 @@
 # Constants
 import torch
 from torch import nn
-
+import torch.nn.functional as F
 imgChans = 3
 fBase = 64
 
@@ -80,8 +80,9 @@ vocab_path = '../data/cub/oc:{}_sl:{}_s:{}_w:{}/cub.vocab'.format(minOccur, maxS
 class SentenceEncoder(nn.Module):
     """ Generate latent parameters for sentence data. """
 
-    def __init__(self, latentDim):
+    def __init__(self, latentDim, eta=1e-6):
         super(SentenceEncoder, self).__init__()
+        self.eta=eta
         self.embedding = nn.Embedding(vocabSize, embeddingDim, padding_idx=0)
         self.enc = nn.Sequential(
             # input size: 1 x 32 x 128
@@ -113,7 +114,7 @@ class SentenceEncoder(nn.Module):
     def forward(self, x):
         e = self.enc(self.embedding(x.long()).unsqueeze(1))
         mu, logvar = self.c1(e).squeeze(), self.c2(e).squeeze()
-        return mu, F.softplus(logvar) + Constants.eta
+        return mu, F.softplus(logvar) + self.eta
 
 
 class SentenceDecoder(nn.Module):
