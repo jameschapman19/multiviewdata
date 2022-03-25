@@ -11,8 +11,9 @@ fBase = 32  # base size of filter channels
 class SVHNEncoder(nn.Module):
     """ Generate latent parameters for SVHN image data. """
 
-    def __init__(self, latent_dim):
+    def __init__(self, latent_dim, eta=1e-6):
         super(SVHNEncoder, self).__init__()
+        self.eta=eta
         self.enc = nn.Sequential(
             # input size: 3 x 32 x 32
             nn.Conv2d(imgChans, fBase, 4, 2, 1, bias=True),
@@ -32,7 +33,7 @@ class SVHNEncoder(nn.Module):
     def forward(self, x):
         e = self.enc(x)
         lv = self.c2(e).squeeze()
-        return self.c1(e).squeeze(), F.softmax(lv, dim=-1) * lv.size(-1) + Constants.eta
+        return self.c1(e).squeeze(), F.softmax(lv, dim=-1) * lv.size(-1) + self.eta
 
 
 class SVHNDecoder(nn.Module):
