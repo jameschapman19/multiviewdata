@@ -1,7 +1,7 @@
 # Constants
 import torch
 from torch import nn
-
+import torch.nn.functional as F
 dataSize = torch.Size([3, 32, 32])
 imgChans = dataSize[0]
 fBase = 32  # base size of filter channels
