@@ -9,8 +9,9 @@ fBase = 64
 class ImageEncoder(nn.Module):
     """ Generate latent parameters for CUB image data. """
 
-    def __init__(self, latentDim):
+    def __init__(self, latentDim, eta=1e-6):
         super(ImageEncoder, self).__init__()
+        self.eta=eta
         modules = [
             # input size: 3 x 128 x 128
             nn.Conv2d(imgChans, fBase, 4, 2, 1, bias=True),
@@ -33,7 +34,7 @@ class ImageEncoder(nn.Module):
 
     def forward(self, x):
         e = self.enc(x)
-        return self.c1(e).squeeze(), F.softplus(self.c2(e)).squeeze() + Constants.eta
+        return self.c1(e).squeeze(), F.softplus(self.c2(e)).squeeze() + self.eta
 
 
 class ImageDecoder(nn.Module):
