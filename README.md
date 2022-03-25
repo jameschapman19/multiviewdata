@@ -15,9 +15,9 @@ Datasets are imported and built with the following syntax:
 
 ```python
 import os
-from multiviewdata.torchdatasets import XRMBDataset
+from multiviewdata.torchdatasets import XRMB
 
-my_dataset = XRMBDataset(root=os.getcwd(),download=True)
+my_dataset = XRMB(root=os.getcwd(),download=True)
 ```
 
 Datasets have somewhat standardised batches. 
@@ -81,3 +81,13 @@ Unlicensed
 ### Twitter
 https://github.com/abenton/wgcca
 MIT License
+
+### CUB Image-Caption
+https://github.com/iffsid/mmvae
+We use Caltech-UCSD Birds (CUB) dataset, with the bird images and their captions serving as two modalities.
+GNU General Public License v3.0
+
+### MNIST-SVHN Dataset
+https://github.com/iffsid/mmvae
+We construct a dataset of pairs of MNIST and SVHN such that each pair depicts the same digit class. Each instance of a digit class in either dataset is randomly paired with 20 instances of the same digit class from the other dataset.
+GNU General Public License v3.0
