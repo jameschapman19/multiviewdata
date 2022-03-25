@@ -143,7 +143,7 @@ class TangledMNIST(Dataset):
 
 
 def _add_mnist_noise(x):
-    x = x + torch.rand(28, 28) / 10
+    x = x + torch.rand(28, 28)
     return x
 
 
