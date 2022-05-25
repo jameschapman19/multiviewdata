@@ -2,6 +2,7 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
+
 dataSize = torch.Size([3, 32, 32])
 imgChans = dataSize[0]
 fBase = 32  # base size of filter channels
@@ -9,11 +10,11 @@ fBase = 32  # base size of filter channels
 
 # Classes
 class SVHNEncoder(nn.Module):
-    """ Generate latent parameters for SVHN image data. """
+    """Generate latent parameters for SVHN image data."""
 
     def __init__(self, latent_dim, eta=1e-6):
         super(SVHNEncoder, self).__init__()
-        self.eta=eta
+        self.eta = eta
         self.enc = nn.Sequential(
             # input size: 3 x 32 x 32
             nn.Conv2d(imgChans, fBase, 4, 2, 1, bias=True),
@@ -37,7 +38,7 @@ class SVHNEncoder(nn.Module):
 
 
 class SVHNDecoder(nn.Module):
-    """ Generate a SVHN image given a sample from the latent space. """
+    """Generate a SVHN image given a sample from the latent space."""
 
     def __init__(self, latent_dim):
         super(SVHNDecoder, self).__init__()

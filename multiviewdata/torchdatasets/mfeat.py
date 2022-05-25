@@ -51,9 +51,14 @@ class MFeat(Dataset):
 
     def __getitem__(self, index):
         batch = {"index": index}
-        batch["views"] = [self.dataset[feat][index].astype(np.float32) for feat in self.feats]
+        batch["views"] = [
+            self.dataset[feat][index].astype(np.float32) for feat in self.feats
+        ]
         if self.partials is not None:
-            batch["partials"] = [self.dataset[partial][index].astype(np.float32) for partial in self.partials]
+            batch["partials"] = [
+                self.dataset[partial][index].astype(np.float32)
+                for partial in self.partials
+            ]
         return batch
 
     def __len__(self):

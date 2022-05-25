@@ -23,6 +23,8 @@ import numpy as np
 from torch.utils.data.dataset import Dataset
 from torchvision.datasets.utils import download_and_extract_archive
 
+from multiviewdata.torchdatasets.utils import fopen
+
 
 class Twitter(Dataset):
     def __init__(
@@ -96,17 +98,6 @@ class Twitter(Dataset):
                 download_and_extract_archive(
                     url, download_root=self.raw_folder, filename=filename
                 )
-
-
-def fopen(p, flag="r"):
-    """Opens as gzipped if appropriate, else as ascii."""
-    if p.endswith(".gz"):
-        if "w" in flag:
-            return gzip.open(p, "wb")
-        else:
-            return gzip.open(p, "rt")
-    else:
-        return open(p, flag)
 
 
 def ldViews(inPath, viewstokeep, replaceempty=True, maxrows=-1):

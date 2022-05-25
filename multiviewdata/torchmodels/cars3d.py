@@ -41,7 +41,7 @@ class CNNEncoder(nn.Module):
             nn.ReLU(True),
             Flatten3D(),
             nn.Linear(4 * 4 * 64, 256),
-            nn.ReLU(True)
+            nn.ReLU(True),
         )
         # map to shared
         self.S = nn.Linear(256, z_dim)

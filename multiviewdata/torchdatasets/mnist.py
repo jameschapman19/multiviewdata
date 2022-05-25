@@ -13,12 +13,12 @@ class SplitMNIST(Dataset):
     """
 
     def __init__(
-            self,
-            root: str,
-            mnist_type: str = "MNIST",
-            train: bool = True,
-            flatten: bool = True,
-            download=False,
+        self,
+        root: str,
+        mnist_type: str = "MNIST",
+        train: bool = True,
+        flatten: bool = True,
+        download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -49,12 +49,12 @@ class NoisyMNIST(Dataset):
     """
 
     def __init__(
-            self,
-            root: str,
-            mnist_type: str = "MNIST",
-            train: bool = True,
-            flatten: bool = True,
-            download=False,
+        self,
+        root: str,
+        mnist_type: str = "MNIST",
+        train: bool = True,
+        flatten: bool = True,
+        download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -105,12 +105,12 @@ class TangledMNIST(Dataset):
     """
 
     def __init__(
-            self,
-            root: str,
-            mnist_type: str = "MNIST",
-            train: bool = True,
-            flatten: bool = True,
-            download=False,
+        self,
+        root: str,
+        mnist_type: str = "MNIST",
+        train: bool = True,
+        flatten: bool = True,
+        download=False,
     ):
         """
         :param root: Root directory of dataset
@@ -189,13 +189,13 @@ class MNISTSVHN(Dataset):
     """
 
     def __init__(
-            self,
-            root: str,
-            max_d: int = 10000,
-            dm: int = 10,
-            train: bool = True,
-            download=False,
-            flatten: bool = True,
+        self,
+        root: str,
+        max_d: int = 10000,
+        dm: int = 10,
+        train: bool = True,
+        download=False,
+        flatten: bool = True,
     ):
         """
         :param root: Root directory of dataset
@@ -213,7 +213,9 @@ class MNISTSVHN(Dataset):
     def __getitem__(self, idx):
         x, label = self.mnist[self.mnist_index[idx]]
         y, label_ = self.svhn[self.svhn_index[idx]]
-        assert label == label_, "labels not the same so something is wrong with the dataset"
+        assert (
+            label == label_
+        ), "labels not the same so something is wrong with the dataset"
         if self.flatten:
             x = torch.flatten(x)
             y = torch.flatten(y)
@@ -221,13 +223,23 @@ class MNISTSVHN(Dataset):
 
     def load_svhn(self, train, root, download):
         if train:
-            svhn = datasets.SVHN(root, split='train', download=download,transform=torchvision.transforms.Compose(
-                [torchvision.transforms.ToTensor()]
-            ),)
+            svhn = datasets.SVHN(
+                root,
+                split="train",
+                download=download,
+                transform=torchvision.transforms.Compose(
+                    [torchvision.transforms.ToTensor()]
+                ),
+            )
         else:
-            svhn = datasets.SVHN(root, split='test', download=download,transform=torchvision.transforms.Compose(
-                [torchvision.transforms.ToTensor()]
-            ),)
+            svhn = datasets.SVHN(
+                root,
+                split="test",
+                download=download,
+                transform=torchvision.transforms.Compose(
+                    [torchvision.transforms.ToTensor()]
+                ),
+            )
         svhn.labels = torch.LongTensor(svhn.labels.squeeze().astype(int)) % 10
         return svhn
 
