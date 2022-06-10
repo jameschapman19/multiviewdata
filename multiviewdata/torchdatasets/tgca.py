@@ -48,7 +48,7 @@ tumor_list = [
 
 
 def process_file(file):
-    tmp = pd.read_csv(file, sep="\t")
+    tmp = pd.read_csv(file, sep="\t", error_bad_lines=False)
     tmp.drop_duplicates(inplace=True)
     tmp.columns = [list(tmp)[0]] + [f[:15] for f in list(tmp)[1:]]
     tmp = tmp.T.reset_index()
@@ -59,9 +59,10 @@ def process_file(file):
 
 def clinical(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
     for tumor in tumor_list:
-        file = root + folder + f"{tumor}.Merge_Clinical.Level_1.2016012800.0.0.tar.gz"
+        file = root + folder + f"{tumor}.Clinical_Pick_Tier1.Level_4.2016012800.0.0.tar.gz"
         if os.path.exists(file):
             tmp = process_file(file)
+            tmp = tmp.rename(columns={tmp.columns[0]: "Hybridization REF"})
             if tumor == "ACC":
                 label_df = tmp
             else:
@@ -70,89 +71,35 @@ def clinical(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
                     axis=0,
                     ignore_index=True,
                 )
-    label_df = label_df.rename(
-        columns={"patient.bcr_patient_barcode": "Hybridization REF"}
-    )
     label_df = label_df.sort_values(by="Hybridization REF").reset_index(drop=True)
     label_df = (
         label_df[label_df["Hybridization REF"].apply(lambda x: "tcga" in x)]
-        .drop_duplicates(subset=["Hybridization REF"], keep="last")
-        .reset_index(drop=True)
+            .drop_duplicates(subset=["Hybridization REF"], keep="last")
+            .reset_index(drop=True)
     )
-    label_df.loc[
-        label_df["patient.days_to_last_followup"] == "endometrial",
-        "patient.days_to_last_followup",
-    ] = label_df.loc[
-        label_df["patient.days_to_last_followup"] == "endometrial",
-        "patient.days_to_death",
-    ]
-    label_df.loc[
-        label_df["patient.days_to_last_followup"] == "endometrial",
-        "patient.days_to_death",
-    ] = label_df.loc[
-        label_df["patient.days_to_last_followup"] == "endometrial",
-        "patient.vital_status",
-    ]
-    label_df.loc[
-        label_df["patient.days_to_last_followup"] == "endometrial",
-        "patient.vital_status",
-    ] = label_df.loc[
-        label_df["patient.days_to_last_followup"] == "endometrial",
-        "patient.days_to_birth",
-    ]
-    label_df.loc[
-        label_df["patient.days_to_last_followup"] == "other  specify",
-        "patient.days_to_last_followup",
-    ] = label_df.loc[
-        label_df["patient.days_to_last_followup"] == "other  specify",
-        "patient.days_to_death",
-    ]
-    label_df.loc[
-        label_df["patient.days_to_last_followup"] == "other  specify",
-        "patient.days_to_death",
-    ] = label_df.loc[
-        label_df["patient.days_to_last_followup"] == "other  specify",
-        "patient.vital_status",
-    ]
-    label_df.loc[
-        label_df["patient.days_to_last_followup"] == "other  specify",
-        "patient.vital_status",
-    ] = label_df.loc[
-        label_df["patient.days_to_last_followup"] == "other  specify",
-        "patient.days_to_birth",
-    ]
     label_df["1yr-mortality"] = -1.0
-    label_df.loc[label_df["patient.days_to_last_followup"].astype(float) >= 365][
-        "1yr-mortality"
-    ] = 0.0
-    label_df.loc[
-        label_df["patient.days_to_death"].astype(float) <= 365, "1yr-mortality"
-    ] = 1.0
+    label_df.loc[label_df["days_to_last_followup"].astype(float) >= 365, "1yr-mortality"] = 0.0
+    label_df.loc[label_df["days_to_death"].astype(float) > 365, "1yr-mortality"] = 0.0
+    label_df.loc[label_df["days_to_death"].astype(float) <= 365, "1yr-mortality"] = 1.0
 
     label_df["3yr-mortality"] = -1.0
-    label_df.loc[label_df["patient.days_to_last_followup"].astype(float) >= 3 * 365][
-        "3yr-mortality"
-    ] = 0.0
-    label_df.loc[
-        label_df["patient.days_to_death"].astype(float) <= 3 * 365, "3yr-mortality"
-    ] = 1.0
+    label_df.loc[label_df["days_to_last_followup"].astype(float) >= 3 * 365, "3yr-mortality"] = 0.0
+    label_df.loc[label_df["days_to_death"].astype(float) > 3 * 365, "3yr-mortality"] = 0.0
+    label_df.loc[label_df["days_to_death"].astype(float) <= 3 * 365, "3yr-mortality"] = 1.0
 
     label_df["5yr-mortality"] = -1.0
-    label_df.loc[label_df["patient.days_to_last_followup"].astype(float) >= 5 * 365][
-        "5yr-mortality"
-    ] = 0.0
-    label_df.loc[
-        label_df["patient.days_to_death"].astype(float) <= 5 * 365, "5yr-mortality"
-    ] = 1.0
+    label_df.loc[label_df["days_to_last_followup"].astype(float) >= 5 * 365, "5yr-mortality"] = 0.0
+    label_df.loc[label_df["days_to_death"].astype(float) > 5 * 365, "5yr-mortality"] = 0.0
+    label_df.loc[label_df["days_to_death"].astype(float) <= 5 * 365, "5yr-mortality"] = 1.0
     label_df.to_csv(root + "/FINAL/clinical_label.csv", index=False)
 
 
 def rppa(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
     for tumor in tumor_list:
         file = (
-            root
-            + folder
-            + f"{tumor}.RPPA_AnnotateWithGene.Level_3.2016012800.0.0/{tumor}.rppa.txt"
+                root
+                + folder
+                + f"{tumor}.RPPA_AnnotateWithGene.Level_3.2016012800.0.0/{tumor}.rppa.txt"
         )
         if os.path.exists(file):
             tmp = process_file(file)
@@ -173,9 +120,9 @@ def rppa(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
 def mrnaseq(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
     for tumor in tumor_list:
         file = (
-            root
-            + folder
-            + f"{tumor}.mRNAseq_Preprocess.Level_3.2016012800.0.0/{tumor}.uncv2.mRNAseq_RSEM_normalized_log2.txt"
+                root
+                + folder
+                + f"{tumor}.mRNAseq_Preprocess.Level_3.2016012800.0.0/{tumor}.uncv2.mRNAseq_RSEM_normalized_log2.txt"
         )
         if os.path.exists(file):
             tmp = process_file(file)
@@ -196,9 +143,9 @@ def mrnaseq(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
 def mirnaseq(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
     for tumor in tumor_list:
         file = (
-            root
-            + folder
-            + f"{tumor}.miRseq_Preprocess.Level_3.2016012800.0.0/{tumor}.miRseq_RPKM_log2.txt"
+                root
+                + folder
+                + f"{tumor}.miRseq_Preprocess.Level_3.2016012800.0.0/{tumor}.miRseq_RPKM_log2.txt"
         )
         if os.path.exists(file):
             tmp = process_file(file)
@@ -219,9 +166,9 @@ def mirnaseq(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
 def methylation(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
     for tumor in tumor_list:
         file = (
-            root
-            + folder
-            + f"{tumor}.Methylation_Preprocess.Level_3.2016012800.0.0/{tumor}.meth.by_mean.data.txt"
+                root
+                + folder
+                + f"{tumor}.Methylation_Preprocess.Level_3.2016012800.0.0/{tumor}.meth.by_mean.data.txt"
         )
         if os.path.exists(file):
             tmp = process_file(file)
@@ -249,8 +196,8 @@ def reduce_dimensionality(root=""):
     from sklearn.decomposition import KernelPCA
 
     for view, df in zip(
-        ["RPPA", "miRNAseq", "methylation", "mRNAseq"],
-        [RPPA, miRNAseq, methylation, mRNAseq],
+            ["RPPA", "miRNAseq", "methylation", "mRNAseq"],
+            [RPPA, miRNAseq, methylation, mRNAseq],
     ):
         z_dim = 100
         pca = KernelPCA(kernel="poly", n_components=z_dim, random_state=1234)
@@ -263,7 +210,7 @@ def reduce_dimensionality(root=""):
 
 class TGCA(Dataset):
     def __init__(
-        self, root, download=False, smoketest=False, preprocess=False, complete=True
+            self, root, download=False, smoketest=False, preprocess=False, complete=False, mortality=1
     ):
         citation = """TCGA requests that authors who use any data from TCGA (including clinical, molecular, 
         and imaging data) acknowledge the TCGA Research Network in the acknowledgements section of their work. \nAn 
@@ -276,6 +223,7 @@ class TGCA(Dataset):
         self.resources = (
             "https://gdac.broadinstitute.org/runs/stddata__2016_01_28/data/"
         )
+        self.mortality = mortality
         self.root = root
         self.modes = [
             "mRNAseq_Preprocess",
@@ -290,9 +238,9 @@ class TGCA(Dataset):
             self.tumor_list = tumor_list
         if download:
             self.download()
+        if preprocess:
             self.preprocess()
-        elif preprocess:
-            self.preprocess()
+        # clinical(self.tumor_list, self.raw_folder)
         self.missing_obvs()
         if not self._check_exists():
             raise RuntimeError(
@@ -326,24 +274,30 @@ class TGCA(Dataset):
         self.clinical = pd.read_csv(
             os.path.join(self.raw_folder, "FINAL/clinical_label.csv")
         ).set_index("Hybridization REF")
-        self.idx_list_all = np.unique(
+        clinical_idx = self.clinical.loc[
+            self.clinical["1yr-mortality"] != -1
+            ].index.tolist()
+        idx_list_all = np.unique(
             self.mrna.index.tolist()
             + self.mirna.index.tolist()
             + self.rppa.index.tolist()
             + self.methylation.index.tolist()
         )
-        self.idx_list_all = list(
-            set(self.idx_list_all) & set(self.clinical.index.tolist())
-        )
-        self.idx_complete = np.array(
-            list(
-                set(self.mrna.index.tolist())
-                & set(self.mirna.index.tolist())
-                & set(self.rppa.index.tolist())
-                & set(self.methylation.index.tolist())
-                & set(self.clinical.index.tolist())
-            )
-        )
+        self.idx_list = np.intersect1d(idx_list_all, clinical_idx)
+        self.idx_list_complete = list(set.intersection(set(self.mrna.index), set(self.mirna.index), set(self.rppa.index),
+                                                  set(self.methylation.index), set(clinical_idx)))
+        idx_df = pd.DataFrame(index=self.idx_list)
+        self.mask=idx_df.copy()
+        self.mask[['mrna','mirna','rppa','methylation']]=0
+        self.mask.loc[np.intersect1d(self.mask.index,self.mrna.index),'mrna']=1
+        self.mask.loc[np.intersect1d(self.mask.index,self.mirna.index),'mirna'] = 1
+        self.mask.loc[np.intersect1d(self.mask.index,self.rppa.index),'rppa'] = 1
+        self.mask.loc[np.intersect1d(self.mask.index,self.methylation.index),'methylation'] = 1
+        self.mrna = idx_df.join(self.mrna)
+        self.mirna = idx_df.join(self.mirna)
+        self.methylation = idx_df.join(self.methylation)
+        self.rppa = idx_df.join(self.rppa)
+        self.clinical = idx_df.join(self.clinical[[f"{self.mortality}yr-mortality"]])
 
     def preprocess(self):
         os.makedirs(os.path.join(self.raw_folder, "FINAL"), exist_ok=True)
@@ -365,16 +319,16 @@ class TGCA(Dataset):
             for tumor in self.tumor_list:
                 for mode in self.modes:
                     raw = (
-                        self.resources
-                        + f"{tumor}/20160128/gdac.broadinstitute.org_{tumor}.{mode}.Level_3.2016012800.0.0.tar.gz"
+                            self.resources
+                            + f"{tumor}/20160128/gdac.broadinstitute.org_{tumor}.{mode}.Level_3.2016012800.0.0.tar.gz"
                     )
                     try:
                         download_and_extract_archive(raw, download_root=self.raw_folder)
                     except:
                         pass
                 raw = (
-                    self.resources
-                    + f"{tumor}/20160128/gdac.broadinstitute.org_{tumor}.Merge_Clinical.Level_1.2016012800.0.0.tar.gz"
+                        self.resources
+                        + f"{tumor}/20160128/gdac.broadinstitute.org_{tumor}.Clinical_Pick_Tier1.Level_4.2016012800.0.0.tar.gz"
                 )
                 try:
                     download_and_extract_archive(raw, download_root=self.raw_folder)
@@ -383,26 +337,27 @@ class TGCA(Dataset):
 
     def __len__(self):
         if self.complete:
-            return len(self.idx_complete)
+            return len(self.idx_list_complete)
         else:
-            return len(self.idx_list_all)
+            return len(self.idx_list)
 
     def __getitem__(self, index):
-        batch = {"index": index}
         if self.complete:
-            idx = self.idx_complete[index]
+            patient_id = self.idx_list_complete[index]
         else:
-            idx = self.idx_list_all[index]
+            patient_id = self.idx_list[index]
+        batch = {"index": index}
         batch["views"] = [
-            self.rppa.loc[idx].values,
-            self.mrna.loc[idx].values,
-            self.mirna.loc[idx].values,
-            self.methylation.loc[idx].values,
+            self.mrna.loc[patient_id].values,
+            self.mirna.loc[patient_id].values,
+            self.rppa.loc[patient_id].values,
+            self.methylation.loc[patient_id].values,
         ]
-        batch["labels"] = self.clinical.loc[idx].values
+        batch["labels"] = self.clinical.loc[patient_id].values
+        batch["mask"] = self.mask.loc[patient_id]
         return batch
 
 
 if __name__ == "__main__":
-    a = TGCA(os.getcwd(), download=True, preprocess=True)
+    a = TGCA(os.getcwd(), download=False, preprocess=False)
     print(a[0])
