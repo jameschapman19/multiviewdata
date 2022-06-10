@@ -346,13 +346,10 @@ class TGCA(Dataset):
             patient_id = self.idx_list_complete[index]
         else:
             patient_id = self.idx_list[index]
-        batch = {"index": index}
-        batch["views"] = [
+        batch = {"index": index, "views": [
             self.mrna.loc[patient_id].values,
             self.mirna.loc[patient_id].values,
             self.rppa.loc[patient_id].values,
             self.methylation.loc[patient_id].values,
-        ]
-        batch["labels"] = self.clinical.loc[patient_id].values
-        batch["mask"] = self.mask.loc[patient_id]
+        ], "labels": self.clinical.loc[patient_id].values, "mask": self.mask.loc[patient_id]}
         return batch
