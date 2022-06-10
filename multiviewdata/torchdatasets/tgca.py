@@ -356,8 +356,3 @@ class TGCA(Dataset):
         batch["labels"] = self.clinical.loc[patient_id].values
         batch["mask"] = self.mask.loc[patient_id]
         return batch
-
-
-if __name__ == "__main__":
-    a = TGCA(os.getcwd(), download=False, preprocess=False)
-    print(a[0])
