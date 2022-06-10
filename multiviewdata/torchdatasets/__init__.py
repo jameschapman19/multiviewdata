@@ -7,3 +7,4 @@ from .mfeat import MFeat
 from .twitter import Twitter
 from .cub import Cub
 from .mirflickr import MIRFlickr
+from .tgca import TGCA

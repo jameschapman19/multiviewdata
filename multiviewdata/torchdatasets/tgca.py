@@ -263,7 +263,7 @@ def reduce_dimensionality(root=""):
 
 class TGCA(Dataset):
     def __init__(
-        self, root, download=False, smoketest=True, preprocess=False, complete=True
+        self, root, download=False, smoketest=False, preprocess=False, complete=True
     ):
         citation = """TCGA requests that authors who use any data from TCGA (including clinical, molecular, 
         and imaging data) acknowledge the TCGA Research Network in the acknowledgements section of their work. \nAn 
@@ -404,5 +404,5 @@ class TGCA(Dataset):
 
 
 if __name__ == "__main__":
-    a = TGCA(os.getcwd(), download=False, preprocess=False)
+    a = TGCA(os.getcwd(), download=True, preprocess=True)
     print(a[0])
