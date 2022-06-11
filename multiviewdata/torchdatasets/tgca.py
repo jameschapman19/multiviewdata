@@ -58,6 +58,15 @@ def process_file(file):
 
 
 def clinical(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
+    """
+    This function downloads the clinical data from the Broad Institute and processes it. It returns a dataframe with the
+    clinical data.
+
+    :param tumor_list: list of tumor types
+    :param root: path to the directory where the data is stored
+    :param folder:
+    :return:
+    """
     for tumor in tumor_list:
         file = root + folder + f"{tumor}.Clinical_Pick_Tier1.Level_4.2016012800.0.0.tar.gz"
         if os.path.exists(file):
@@ -95,6 +104,15 @@ def clinical(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
 
 
 def rppa(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
+    """
+    This function downloads the rppa data from the Broad Institute and processes it. It returns a dataframe with the
+    rppa data.
+
+    :param tumor_list:
+    :param root:
+    :param folder:
+    :return:
+    """
     for tumor in tumor_list:
         file = (
                 root
@@ -118,6 +136,18 @@ def rppa(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
 
 
 def mrnaseq(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
+    """
+
+    Parameters
+    ----------
+    tumor_list
+    root
+    folder
+
+    Returns
+    -------
+
+    """
     for tumor in tumor_list:
         file = (
                 root
@@ -141,6 +171,16 @@ def mrnaseq(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
 
 
 def mirnaseq(tumor_list, root="", folder="/gdac.broadinstitute.org_"):
+    """
+
+    Args:
+        tumor_list:
+        root:
+        folder:
+
+    Returns:
+
+    """
     for tumor in tumor_list:
         file = (
                 root
