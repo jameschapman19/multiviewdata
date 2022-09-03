@@ -84,7 +84,7 @@ class XRMB(Dataset):
                 self.dataset["view_1"][index].astype(np.float32),
                 self.dataset["view_2"][index].astype(np.float32),
             ),
-            "index": index.astype(np.float32),
+            "index": index,
         }
 
     def _check_exists(self) -> bool:

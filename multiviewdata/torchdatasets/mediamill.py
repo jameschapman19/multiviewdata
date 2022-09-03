@@ -46,7 +46,6 @@ class MediaMill(Dataset):
 
         train_file, valid_file, test_file = [os.path.join(root, 'mediamill_' + ds + '.libsvm') for ds in
                                              ['train', 'valid', 'test']]
-        print()
 
     @property
     def raw_folder(self) -> str:
