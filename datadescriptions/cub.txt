@@ -1,1 +1,0 @@
-We use Caltech-UCSD Birds (CUB) dataset, with the bird images and their captions serving as two modalities.
