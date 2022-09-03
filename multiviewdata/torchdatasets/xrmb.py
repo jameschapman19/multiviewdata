@@ -70,7 +70,6 @@ class XRMB(Dataset):
             view_1 = view_1["XTe1"]
             view_2 = view_2["XTe2"]
         self.dataset = dict(view_1=view_1, view_2=view_2)
-        print(citation)
 
     @property
     def raw_folder(self) -> str:
