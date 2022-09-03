@@ -47,16 +47,18 @@ class XRMB(Dataset):
             raise RuntimeError(
                 "Dataset not found." + " You can use download=True to download it"
             )
+        view_1_file = os.path.join(self.raw_folder, "XRMBf2KALDI_window7_single1.mat")
+        view_2_file = os.path.join(self.raw_folder, "XRMBf2KALDI_window7_single2.mat")
+        view_1, view_2 = (
+            loadmat(view_1_file),
+            loadmat(view_2_file),
+        )
         if train:
-            view_1, view_2 = (
-                loadmat("XRMBf2KALDI_window7_single1.mat")["X1"],
-                loadmat("XRMBf2KALDI_window7_single2.mat")["X2"],
-            )
+            view_1=view_1["X1"]
+            view_2=view_2["X2"]
         else:
-            view_1, view_2 = (
-                loadmat("XRMBf2KALDI_window7_single1.mat")["XTe1"],
-                loadmat("XRMBf2KALDI_window7_single2.mat")["XTe2"],
-            )
+            view_1 = view_1["XTe1"]
+            view_2 = view_2["XTe2"]
         self.dataset = dict(view_1=view_1, view_2=view_2)
         print(citation)
 
