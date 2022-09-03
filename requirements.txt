@@ -6,3 +6,4 @@ scipy
 h5py
 matplotlib
 nltk
+pandas
