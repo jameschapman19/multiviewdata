@@ -35,8 +35,8 @@ class SplitMNIST(Dataset):
 
     def __getitem__(self, idx):
         x_a, label = self.dataset[idx]
-        x_b = x_a[:, :, 14:]/255.
-        x_a = x_a[:, :, :14]/255.
+        x_b = x_a[:, :, 14:]
+        x_a = x_a[:, :, :14]
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
