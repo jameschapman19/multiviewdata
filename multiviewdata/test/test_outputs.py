@@ -21,6 +21,15 @@ def test_splitmnist():
     from multiviewdata.torchdatasets import SplitMNIST
 
     a = SplitMNIST(os.getcwd(), download=True)[0]
+    b=a[0]
+    assert "index" in a
+    assert "views" in a
+
+def test_xrmb():
+    from multiviewdata.torchdatasets import XRMB
+
+    a = XRMB(os.getcwd(), download=True)
+    b=a[0]
     assert "index" in a
     assert "views" in a
 
@@ -31,3 +40,7 @@ def test_mfeat():
     a = MFeat(os.getcwd(), download=True)[0]
     assert "index" in a
     assert "views" in a
+
+if __name__ == '__main__':
+    test_splitmnist()
+    test_xrmb()

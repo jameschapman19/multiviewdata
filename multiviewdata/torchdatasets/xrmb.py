@@ -4,7 +4,7 @@ from scipy.io import loadmat
 from torch.utils.data import Dataset
 from torchvision.datasets.utils import download_url
 import numpy as np
-
+from sklearn.preprocessing import StandardScaler
 
 class XRMB(Dataset):
     """
@@ -63,12 +63,17 @@ class XRMB(Dataset):
             loadmat(view_1_file),
             loadmat(view_2_file),
         )
+
+        scaler_1= StandardScaler().fit(view_1["X1"])
+        scaler_2= StandardScaler().fit(view_2["X2"])
+
         if train:
-            view_1=view_1["X1"]
-            view_2=view_2["X2"]
+            view_1=scaler_1.transform(view_1["X1"])
+            view_2=scaler_2.transform(view_2["X2"])
         else:
-            view_1 = view_1["XTe1"]
-            view_2 = view_2["XTe2"]
+            view_1 = scaler_1.transform(view_1["XTe1"])
+            view_2 = scaler_2.transform(view_2["XTe2"])
+
         self.dataset = dict(view_1=view_1, view_2=view_2)
 
     @property

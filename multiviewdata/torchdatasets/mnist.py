@@ -5,7 +5,7 @@ import torchvision
 from torch.utils.data import Dataset
 from torchvision import datasets
 from torchvision import transforms
-
+from PIL import Image
 
 class SplitMNIST(Dataset):
     """
@@ -35,8 +35,8 @@ class SplitMNIST(Dataset):
 
     def __getitem__(self, idx):
         x_a, label = self.dataset[idx]
-        x_b = x_a[:, :, 14:]
-        x_a = x_a[:, :, :14]
+        x_b = x_a[:, :, 14:]/255.
+        x_a = x_a[:, :, :14]/255.
         if self.flatten:
             x_a = torch.flatten(x_a)
             x_b = torch.flatten(x_b)
